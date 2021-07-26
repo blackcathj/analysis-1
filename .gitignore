@@ -1,3 +1,6 @@
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
 # http://www.gnu.org/software/automake
 
 Makefile.in
