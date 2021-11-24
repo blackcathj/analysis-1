@@ -15,6 +15,11 @@
 #include <g4jets/JetMap.h>
 
 /// Tracking includes
+#include <calobase/RawCluster.h>
+#include <calobase/RawClusterContainer.h>
+#include <calobase/RawTower.h>
+#include <calobase/RawTowerContainer.h>
+#include <calobase/RawTowerGeomContainer.h>
 #include <g4vertex/GlobalVertex.h>
 #include <g4vertex/GlobalVertexMap.h>
 #include <trackbase_historic/SvtxTrack.h>
@@ -51,9 +56,11 @@
 #include <TMath.h>
 #include <TNtuple.h>
 #include <TTree.h>
+#include <TVector3.h>
 
 /// C++ includes
 #include <cassert>
+#include <cmath>
 #include <sstream>
 #include <string>
 
@@ -70,7 +77,8 @@ using namespace std;
  * Constructor of module
  */
 eIDMLInterface::eIDMLInterface(const std::string &name, const std::string &filename)
-  : SubsysReco(name)
+  : SubsysReco("eIDMLInterface_" + name)
+  , _calo_name(name)
   , m_outfilename(filename)
   , m_hm(nullptr)
   , m_minjetpt(5.0)
@@ -91,11 +99,6 @@ eIDMLInterface::eIDMLInterface(const std::string &name, const std::string &filen
  */
 eIDMLInterface::~eIDMLInterface()
 {
-  delete m_hm;
-  delete m_hepmctree;
-  delete m_truthjettree;
-  delete m_recojettree;
-  delete m_tracktree;
 }
 
 /**
@@ -126,30 +129,254 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
   {
     cout << "Beginning process_event in eIDMLInterface" << endl;
   }
-  /// Get the truth information
-  if (m_analyzeTruth)
+
+  /// G4 truth particle node
+  PHG4TruthInfoContainer *truthinfo = findNode::getClass<PHG4TruthInfoContainer>(topNode, "G4TruthInfo");
+  SvtxTrackMap *trackmap = findNode::getClass<SvtxTrackMap>(topNode, "TrackMap");
+
+  const std::string detector(_calo_name);
+
+  std::string towernodename = "TOWER_CALIB_" + detector;
+  // Grab the towers
+  RawTowerContainer *towers = findNode::getClass<RawTowerContainer>(topNode,
+                                                                    towernodename);
+  if (!towers)
   {
-    getHEPMCTruth(topNode);
-    getPHG4Truth(topNode);
+    std::cout << PHWHERE << ": Could not find node " << towernodename
+              << std::endl;
+    return Fun4AllReturnCodes::ABORTRUN;
+  }
+  std::string towergeomnodename = "TOWERGEOM_" + detector;
+  RawTowerGeomContainer *towergeom = findNode::getClass<RawTowerGeomContainer>(
+      topNode, towergeomnodename);
+  if (!towergeom)
+  {
+    std::cout << PHWHERE << ": Could not find node " << towergeomnodename
+              << std::endl;
+    return Fun4AllReturnCodes::ABORTRUN;
   }
 
-  /// Get the tracks
-  if (m_analyzeTracks)
+  if (!truthinfo)
   {
-    getTracks(topNode);
-  }
-  /// Get the truth and reconstructed jets
-  if (m_analyzeJets)
-  {
-    getTruthJets(topNode);
-    getReconstructedJets(topNode);
+    cout << PHWHERE
+         << "PHG4TruthInfoContainer node is missing, can't collect G4 truth particles"
+         << endl;
+    return Fun4AllReturnCodes::ABORTRUN;
   }
 
-  /// Get calorimeter information
-  if (m_analyzeClusters)
+  /// Get the primary particle range
+  PHG4TruthInfoContainer::Range range = truthinfo->GetPrimaryParticleRange();
+  /// Loop over the G4 truth (stable) particles
+  for (PHG4TruthInfoContainer::ConstIterator iter = range.first;
+       iter != range.second;
+       ++iter)
   {
-    getEMCalClusters(topNode);
-  }
+    initializeVariables();
+
+    /// Get this truth particle
+    const PHG4Particle *truth = iter->second;
+
+    /// Get this particles momentum, etc.
+    m_truthpx = truth->get_px();
+    m_truthpy = truth->get_py();
+    m_truthpz = truth->get_pz();
+    m_truthp = sqrt(m_truthpx * m_truthpx + m_truthpy * m_truthpy + m_truthpz * m_truthpz);
+    m_truthenergy = truth->get_e();
+
+    m_truthpt = sqrt(m_truthpx * m_truthpx + m_truthpy * m_truthpy);
+
+    m_truthphi = atan2(m_truthpy, m_truthpx);
+
+    m_trutheta = atanh(m_truthpz / m_truthenergy);
+
+    // eta cut
+    if (m_trutheta < m_etaRange.first or m_trutheta > m_etaRange.second) continue;
+
+    /// Check for nans
+    if (m_trutheta != m_trutheta)
+      m_trutheta = -99;
+    m_truthpid = truth->get_pid();
+
+    SvtxTrack_FastSim *track = nullptr;
+
+    if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << "TRACKmap size " << trackmap->size() << std::endl;
+    for (SvtxTrackMap::ConstIter track_itr = trackmap->begin();
+         track_itr != trackmap->end();
+         track_itr++)
+    {
+      //std::cout << "TRACK * " << track_itr->first << std::endl;
+      SvtxTrack_FastSim *temp = dynamic_cast<SvtxTrack_FastSim *>(track_itr->second);
+      if (!temp)
+      {
+        if (Verbosity() > 1)
+        {
+          std::cout << "PHG4TrackFastSimEval::fill_track_tree - ignore track that is not a SvtxTrack_FastSim:";
+          track_itr->second->identify();
+        }
+        continue;
+      }
+      if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " PARTICLE!" << std::endl;
+
+      if ((temp->get_truth_track_id() - truth->get_track_id()) == 0)
+      {
+        track = temp;
+
+        break;
+      }
+    }
+
+    if (track)
+    {
+      // track matched
+
+      /// Get the reconstructed track info
+      m_tr_px = track->get_px();
+      m_tr_py = track->get_py();
+      m_tr_pz = track->get_pz();
+      m_tr_p = sqrt(m_tr_px * m_tr_px + m_tr_py * m_tr_py + m_tr_pz * m_tr_pz);
+
+      m_tr_pt = sqrt(m_tr_px * m_tr_px + m_tr_py * m_tr_py);
+
+      m_tr_phi = track->get_phi();
+      m_tr_eta = track->get_eta();
+
+      m_charge = track->get_charge();
+      m_chisq = track->get_chisq();
+      m_ndf = track->get_ndf();
+      m_dca = track->get_dca();
+      m_tr_x = track->get_x();
+      m_tr_y = track->get_y();
+      m_tr_z = track->get_z();
+
+      bool has_projection(false);
+      // find projections
+      for (SvtxTrack::ConstStateIter trkstates = track->begin_states();
+           trkstates != track->end_states();
+           ++trkstates)
+      {
+        if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " checking " << trkstates->second->get_name() << endl;
+        if (trkstates->second->get_name().compare("BECAL") == 0)
+        {
+          if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " found " << trkstates->second->get_name() << endl;
+          has_projection = true;
+
+          // setting the projection (xyz and pxpypz)
+          for (int i = 0; i < 3; i++)
+          {
+            m_TTree_proj_vec[i] = trkstates->second->get_pos(i);
+            m_TTree_proj_p_vec[i] = trkstates->second->get_mom(i);
+          }
+          // fourth element is the path length
+          m_TTree_proj_vec[3] = trkstates->first;
+        }
+      }  //       for (SvtxTrack::ConstStateIter trkstates = track->begin_states();
+
+      // projection match to calorimeter
+      if (has_projection)
+      {
+        TVector3 vec_proj(m_TTree_proj_vec[0], m_TTree_proj_vec[1], m_TTree_proj_vec[2]);
+
+        const double eta_proj = vec_proj.Eta();
+        const double phi_proj = vec_proj.Phi();
+
+        double min_tower_r2 = 1000;
+        RawTowerDefs::keytype central_tower_key = -1;
+        const RawTowerGeom *central_tower(nullptr);
+        int maxBinPhi = 0;
+        int minBinPhi = 1000;
+
+        RawTowerGeomContainer::ConstRange range = towergeom->get_tower_geometries();
+        /// Loop over the G4 truth (stable) particles
+        for (RawTowerGeomContainer::ConstIterator titer = range.first;
+             titer != range.second;
+             ++titer)
+        {
+          //          const int bineta = RawTowerDefs::decode_index1(titer->first);
+          const int binphi = RawTowerDefs::decode_index2(titer->first);
+          if (maxBinPhi < binphi) maxBinPhi = binphi;
+          if (minBinPhi > binphi) minBinPhi = binphi;
+
+          const RawTowerGeom *tower_geom = titer->second;
+          assert(tower_geom);
+
+          TVector3 vec_tower(
+              tower_geom->get_center_x(),
+              tower_geom->get_center_y(),
+              tower_geom->get_center_z());
+
+          const double deta = eta_proj - vec_tower.Eta();
+          double dphi = phi_proj - vec_tower.Phi();
+
+          if (dphi > M_PI) dphi -= 2 * M_PI;
+          if (dphi < -M_PI) dphi += 2 * M_PI;
+
+          const double r2 = dphi * dphi + deta * deta;
+
+          if (r2 < min_tower_r2)
+          {
+            min_tower_r2 = r2;
+            central_tower_key = titer->first;
+            central_tower = titer->second;
+          }
+
+        }  //         for (RawTowerGeomContainer::ConstIterator titer = range.first;
+
+        assert(central_tower);
+
+        if (Verbosity())
+        {
+          cout << __PRETTY_FUNCTION__ << " found tower " << central_tower_key << ": ";
+          cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
+          cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
+          cout << " minBinPhi =  " << minBinPhi;
+          cout << " maxBinPhi =  " << maxBinPhi;
+          central_tower->identify();
+        }
+
+        // print tower patch
+        const int central_tower_eta = RawTowerDefs::decode_index1(central_tower_key);
+        const int central_tower_phi = RawTowerDefs::decode_index2(central_tower_key);
+        const int size_half_tower_patch = (m_sizeTowerPatch - 1) / 2;  // 7x7
+
+        for (int ieta = central_tower_eta - size_half_tower_patch;
+             ieta <= central_tower_eta + size_half_tower_patch;
+             ++ieta)
+        {
+          for (int iphi = central_tower_phi - size_half_tower_patch;
+               iphi <= central_tower_phi + size_half_tower_patch;
+               ++iphi)
+          {
+            int wrapphi = iphi;
+            if (wrapphi < minBinPhi) wrapphi = wrapphi - minBinPhi + maxBinPhi + 1;
+            if (wrapphi > maxBinPhi) wrapphi = wrapphi - maxBinPhi + minBinPhi - 1;
+
+            RawTowerDefs::keytype tower_key = RawTowerDefs::encode_towerid(
+                towergeom->get_calorimeter_id(), ieta, iphi);
+            const RawTowerGeom *tower_geom = towergeom->get_tower_geometry(tower_key);
+            if (tower_geom)
+            {
+              TVector3 vec_tower(
+                  tower_geom->get_center_x(),
+                  tower_geom->get_center_y(),
+                  tower_geom->get_center_z());
+
+              const double deta = eta_proj - vec_tower.Eta();
+              double dphi = phi_proj - vec_tower.Phi();
+            }
+          }
+        }
+
+        //        const int bineta = RawTowerDefs::decode_index1(central_tower_key);
+        //        const int binphi = RawTowerDefs::decode_index2(central_tower_key);
+
+      }  //       if (has_projection)
+
+    }  //     if (track)
+
+    /// Fill the g4 truth tree
+    assert(m_truthtree);
+    m_truthtree->Fill();
+  }  /// Loop over the G4 truth (stable) particles
 
   return Fun4AllReturnCodes::EVENT_OK;
 }
@@ -167,31 +394,7 @@ int eIDMLInterface::End(PHCompositeNode *topNode)
 
   /// Change to the outfile
   m_outfile->cd();
-
-  /// If we analyzed the tracks, write the tree out
-  if (m_analyzeTracks)
-    m_tracktree->Write();
-
-  /// If we analyzed the jets, write them out
-  if (m_analyzeJets)
-  {
-    m_truthjettree->Write();
-    m_recojettree->Write();
-  }
-
-  /// If we analyzed the truth particles, write them out
-  if (m_analyzeTruth)
-  {
-    m_hepmctree->Write();
-    m_truthtree->Write();
-  }
-
-  /// If we analyzed the clusters, write them out
-  if (m_analyzeClusters)
-  {
-    m_clustertree->Write();
-  }
-
+  m_truthtree->Write();
   /// Write out any other histograms
   m_phi_h->Write();
   m_eta_phi_h->Write();
@@ -818,92 +1021,69 @@ void eIDMLInterface::getEMCalClusters(PHCompositeNode *topNode)
  */
 void eIDMLInterface::initializeTrees()
 {
-  m_recojettree = new TTree("jettree", "A tree with reconstructed jets");
-  m_recojettree->Branch("m_recojetpt", &m_recojetpt, "m_recojetpt/D");
-  m_recojettree->Branch("m_recojetid", &m_recojetid, "m_recojetid/I");
-  m_recojettree->Branch("m_recojetpx", &m_recojetpx, "m_recojetpx/D");
-  m_recojettree->Branch("m_recojetpy", &m_recojetpy, "m_recojetpy/D");
-  m_recojettree->Branch("m_recojetpz", &m_recojetpz, "m_recojetpz/D");
-  m_recojettree->Branch("m_recojetphi", &m_recojetphi, "m_recojetphi/D");
-  m_recojettree->Branch("m_recojeteta", &m_recojeteta, "m_recojeteta/D");
-  m_recojettree->Branch("m_recojetenergy", &m_recojetenergy, "m_recojetenergy/D");
-  m_recojettree->Branch("m_truthjetid", &m_truthjetid, "m_truthjetid/I");
-  m_recojettree->Branch("m_truthjetp", &m_truthjetp, "m_truthjetp/D");
-  m_recojettree->Branch("m_truthjetphi", &m_truthjetphi, "m_truthjetphi/D");
-  m_recojettree->Branch("m_truthjeteta", &m_truthjeteta, "m_truthjeteta/D");
-  m_recojettree->Branch("m_truthjetpt", &m_truthjetpt, "m_truthjetpt/D");
-  m_recojettree->Branch("m_truthjetenergy", &m_truthjetenergy, "m_truthjetenergy/D");
-  m_recojettree->Branch("m_truthjetpx", &m_truthjetpx, "m_truthjetpx/D");
-  m_recojettree->Branch("m_truthjetpy", &m_truthjetpy, "m_truthjyetpy/D");
-  m_recojettree->Branch("m_truthjetpz", &m_truthjetpz, "m_truthjetpz/D");
-  m_recojettree->Branch("m_dR", &m_dR, "m_dR/D");
+  m_outfile = new TFile();
+  m_phi_h = new TH1F();
+  m_eta_phi_h = new TH2F();
+  //  m_recojettree = new TTree("jettree", "A tree with reconstructed jets");
+  //  m_recojettree->Branch("m_recojetpt", &m_recojetpt, "m_recojetpt/D");
+  //  m_recojettree->Branch("m_recojetid", &m_recojetid, "m_recojetid/I");
+  //  m_recojettree->Branch("m_recojetpx", &m_recojetpx, "m_recojetpx/D");
+  //  m_recojettree->Branch("m_recojetpy", &m_recojetpy, "m_recojetpy/D");
+  //  m_recojettree->Branch("m_recojetpz", &m_recojetpz, "m_recojetpz/D");
+  //  m_recojettree->Branch("m_recojetphi", &m_recojetphi, "m_recojetphi/D");
+  //  m_recojettree->Branch("m_recojeteta", &m_recojeteta, "m_recojeteta/D");
+  //  m_recojettree->Branch("m_recojetenergy", &m_recojetenergy, "m_recojetenergy/D");
+  //  m_recojettree->Branch("m_truthjetid", &m_truthjetid, "m_truthjetid/I");
+  //  m_recojettree->Branch("m_truthjetp", &m_truthjetp, "m_truthjetp/D");
+  //  m_recojettree->Branch("m_truthjetphi", &m_truthjetphi, "m_truthjetphi/D");
+  //  m_recojettree->Branch("m_truthjeteta", &m_truthjeteta, "m_truthjeteta/D");
+  //  m_recojettree->Branch("m_truthjetpt", &m_truthjetpt, "m_truthjetpt/D");
+  //  m_recojettree->Branch("m_truthjetenergy", &m_truthjetenergy, "m_truthjetenergy/D");
+  //  m_recojettree->Branch("m_truthjetpx", &m_truthjetpx, "m_truthjetpx/D");
+  //  m_recojettree->Branch("m_truthjetpy", &m_truthjetpy, "m_truthjyetpy/D");
+  //  m_recojettree->Branch("m_truthjetpz", &m_truthjetpz, "m_truthjetpz/D");
+  //  m_recojettree->Branch("m_dR", &m_dR, "m_dR/D");
+  //
+  //  m_truthjettree = new TTree("truthjettree", "A tree with truth jets");
+  //  m_truthjettree->Branch("m_truthjetid", &m_truthjetid, "m_truthjetid/I");
+  //  m_truthjettree->Branch("m_truthjetp", &m_truthjetp, "m_truthjetp/D");
+  //  m_truthjettree->Branch("m_truthjetphi", &m_truthjetphi, "m_truthjetphi/D");
+  //  m_truthjettree->Branch("m_truthjeteta", &m_truthjeteta, "m_truthjeteta/D");
+  //  m_truthjettree->Branch("m_truthjetpt", &m_truthjetpt, "m_truthjetpt/D");
+  //  m_truthjettree->Branch("m_truthjetenergy", &m_truthjetenergy, "m_truthjetenergy/D");
+  //  m_truthjettree->Branch("m_truthjetpx", &m_truthjetpx, "m_truthjetpx/D");
+  //  m_truthjettree->Branch("m_truthjetpy", &m_truthjetpy, "m_truthjetpy/D");
+  //  m_truthjettree->Branch("m_truthjetpz", &m_truthjetpz, "m_truthjetpz/D");
+  //  m_truthjettree->Branch("m_dR", &m_dR, "m_dR/D");
+  //  m_truthjettree->Branch("m_recojetpt", &m_recojetpt, "m_recojetpt/D");
+  //  m_truthjettree->Branch("m_recojetid", &m_recojetid, "m_recojetid/I");
+  //  m_truthjettree->Branch("m_recojetpx", &m_recojetpx, "m_recojetpx/D");
+  //  m_truthjettree->Branch("m_recojetpy", &m_recojetpy, "m_recojetpy/D");
+  //  m_truthjettree->Branch("m_recojetpz", &m_recojetpz, "m_recojetpz/D");
+  //  m_truthjettree->Branch("m_recojetphi", &m_recojetphi, "m_recojetphi/D");
+  //  m_truthjettree->Branch("m_recojeteta", &m_recojeteta, "m_recojeteta/D");
+  //  m_truthjettree->Branch("m_recojetenergy", &m_recojetenergy, "m_recojetenergy/D");
+  //
+  //  m_tracktree = new TTree("tracktree", "A tree with svtx tracks");
+  //
+  //  m_hepmctree = new TTree("hepmctree", "A tree with hepmc truth particles");
+  //  m_hepmctree->Branch("m_partid1", &m_partid1, "m_partid1/I");
+  //  m_hepmctree->Branch("m_partid2", &m_partid2, "m_partid2/I");
+  //  m_hepmctree->Branch("m_x1", &m_x1, "m_x1/D");
+  //  m_hepmctree->Branch("m_x2", &m_x2, "m_x2/D");
+  //  m_hepmctree->Branch("m_mpi", &m_mpi, "m_mpi/I");
+  //  m_hepmctree->Branch("m_process_id", &m_process_id, "m_process_id/I");
+  //  m_hepmctree->Branch("m_truthenergy", &m_truthenergy, "m_truthenergy/D");
+  //  m_hepmctree->Branch("m_trutheta", &m_trutheta, "m_trutheta/D");
+  //  m_hepmctree->Branch("m_truthphi", &m_truthphi, "m_truthphi/D");
+  //  m_hepmctree->Branch("m_truthpx", &m_truthpx, "m_truthpx/D");
+  //  m_hepmctree->Branch("m_truthpy", &m_truthpy, "m_truthpy/D");
+  //  m_hepmctree->Branch("m_truthpz", &m_truthpz, "m_truthpz/D");
+  //  m_hepmctree->Branch("m_truthpt", &m_truthpt, "m_truthpt/D");
+  //  m_hepmctree->Branch("m_numparticlesinevent", &m_numparticlesinevent, "m_numparticlesinevent/I");
+  //  m_hepmctree->Branch("m_truthpid", &m_truthpid, "m_truthpid/I");
 
-  m_truthjettree = new TTree("truthjettree", "A tree with truth jets");
-  m_truthjettree->Branch("m_truthjetid", &m_truthjetid, "m_truthjetid/I");
-  m_truthjettree->Branch("m_truthjetp", &m_truthjetp, "m_truthjetp/D");
-  m_truthjettree->Branch("m_truthjetphi", &m_truthjetphi, "m_truthjetphi/D");
-  m_truthjettree->Branch("m_truthjeteta", &m_truthjeteta, "m_truthjeteta/D");
-  m_truthjettree->Branch("m_truthjetpt", &m_truthjetpt, "m_truthjetpt/D");
-  m_truthjettree->Branch("m_truthjetenergy", &m_truthjetenergy, "m_truthjetenergy/D");
-  m_truthjettree->Branch("m_truthjetpx", &m_truthjetpx, "m_truthjetpx/D");
-  m_truthjettree->Branch("m_truthjetpy", &m_truthjetpy, "m_truthjetpy/D");
-  m_truthjettree->Branch("m_truthjetpz", &m_truthjetpz, "m_truthjetpz/D");
-  m_truthjettree->Branch("m_dR", &m_dR, "m_dR/D");
-  m_truthjettree->Branch("m_recojetpt", &m_recojetpt, "m_recojetpt/D");
-  m_truthjettree->Branch("m_recojetid", &m_recojetid, "m_recojetid/I");
-  m_truthjettree->Branch("m_recojetpx", &m_recojetpx, "m_recojetpx/D");
-  m_truthjettree->Branch("m_recojetpy", &m_recojetpy, "m_recojetpy/D");
-  m_truthjettree->Branch("m_recojetpz", &m_recojetpz, "m_recojetpz/D");
-  m_truthjettree->Branch("m_recojetphi", &m_recojetphi, "m_recojetphi/D");
-  m_truthjettree->Branch("m_recojeteta", &m_recojeteta, "m_recojeteta/D");
-  m_truthjettree->Branch("m_recojetenergy", &m_recojetenergy, "m_recojetenergy/D");
-  m_tracktree = new TTree("tracktree", "A tree with svtx tracks");
-  m_tracktree->Branch("m_tr_px", &m_tr_px, "m_tr_px/D");
-  m_tracktree->Branch("m_tr_py", &m_tr_py, "m_tr_py/D");
-  m_tracktree->Branch("m_tr_pz", &m_tr_pz, "m_tr_pz/D");
-  m_tracktree->Branch("m_tr_p", &m_tr_p, "m_tr_p/D");
-  m_tracktree->Branch("m_tr_pt", &m_tr_pt, "m_tr_pt/D");
-  m_tracktree->Branch("m_tr_phi", &m_tr_phi, "m_tr_phi/D");
-  m_tracktree->Branch("m_tr_eta", &m_tr_eta, "m_tr_eta/D");
-  m_tracktree->Branch("m_charge", &m_charge, "m_charge/I");
-  m_tracktree->Branch("m_chisq", &m_chisq, "m_chisq/D");
-  m_tracktree->Branch("m_ndf", &m_ndf, "m_ndf/I");
-  m_tracktree->Branch("m_dca", &m_dca, "m_dca/D");
-  m_tracktree->Branch("m_tr_x", &m_tr_x, "m_tr_x/D");
-  m_tracktree->Branch("m_tr_y", &m_tr_y, "m_tr_y/D");
-  m_tracktree->Branch("m_tr_z", &m_tr_z, "m_tr_z/D");
-  m_tracktree->Branch("m_tr_pion_loglikelihood", &m_tr_pion_loglikelihood, "m_tr_pion_loglikelihood/F");
-  m_tracktree->Branch("m_tr_kaon_loglikelihood", &m_tr_kaon_loglikelihood, "m_tr_kaon_loglikelihood/F");
-  m_tracktree->Branch("m_tr_proton_loglikelihood", &m_tr_proton_loglikelihood, "m_tr_proton_loglikelihood/F");
-  m_tracktree->Branch("m_truth_is_primary", &m_truth_is_primary, "m_truth_is_primary/I");
-  m_tracktree->Branch("m_truthtrackpx", &m_truthtrackpx, "m_truthtrackpx/D");
-  m_tracktree->Branch("m_truthtrackpy", &m_truthtrackpy, "m_truthtrackpy/D");
-  m_tracktree->Branch("m_truthtrackpz", &m_truthtrackpz, "m_truthtrackpz/D");
-  m_tracktree->Branch("m_truthtrackp", &m_truthtrackp, "m_truthtrackp/D");
-  m_tracktree->Branch("m_truthtracke", &m_truthtracke, "m_truthtracke/D");
-  m_tracktree->Branch("m_truthtrackpt", &m_truthtrackpt, "m_truthtrackpt/D");
-  m_tracktree->Branch("m_truthtrackphi", &m_truthtrackphi, "m_truthtrackphi/D");
-  m_tracktree->Branch("m_truthtracketa", &m_truthtracketa, "m_truthtracketa/D");
-  m_tracktree->Branch("m_truthtrackpid", &m_truthtrackpid, "m_truthtrackpid/I");
-
-  m_hepmctree = new TTree("hepmctree", "A tree with hepmc truth particles");
-  m_hepmctree->Branch("m_partid1", &m_partid1, "m_partid1/I");
-  m_hepmctree->Branch("m_partid2", &m_partid2, "m_partid2/I");
-  m_hepmctree->Branch("m_x1", &m_x1, "m_x1/D");
-  m_hepmctree->Branch("m_x2", &m_x2, "m_x2/D");
-  m_hepmctree->Branch("m_mpi", &m_mpi, "m_mpi/I");
-  m_hepmctree->Branch("m_process_id", &m_process_id, "m_process_id/I");
-  m_hepmctree->Branch("m_truthenergy", &m_truthenergy, "m_truthenergy/D");
-  m_hepmctree->Branch("m_trutheta", &m_trutheta, "m_trutheta/D");
-  m_hepmctree->Branch("m_truthphi", &m_truthphi, "m_truthphi/D");
-  m_hepmctree->Branch("m_truthpx", &m_truthpx, "m_truthpx/D");
-  m_hepmctree->Branch("m_truthpy", &m_truthpy, "m_truthpy/D");
-  m_hepmctree->Branch("m_truthpz", &m_truthpz, "m_truthpz/D");
-  m_hepmctree->Branch("m_truthpt", &m_truthpt, "m_truthpt/D");
-  m_hepmctree->Branch("m_numparticlesinevent", &m_numparticlesinevent, "m_numparticlesinevent/I");
-  m_hepmctree->Branch("m_truthpid", &m_truthpid, "m_truthpid/I");
-
-  m_truthtree = new TTree("truthg4tree", "A tree with truth g4 particles");
+  m_truthtree = new TTree("T", "A tree one enetry for a truth g4 particles matched with reco objects");
   m_truthtree->Branch("m_truthenergy", &m_truthenergy, "m_truthenergy/D");
   m_truthtree->Branch("m_truthp", &m_truthp, "m_truthp/D");
   m_truthtree->Branch("m_truthpx", &m_truthpx, "m_truthpx/D");
@@ -914,16 +1094,52 @@ void eIDMLInterface::initializeTrees()
   m_truthtree->Branch("m_trutheta", &m_trutheta, "m_trutheta/D");
   m_truthtree->Branch("m_truthpid", &m_truthpid, "m_truthpid/I");
 
-  m_clustertree = new TTree("clustertree", "A tree with emcal clusters");
-  m_clustertree->Branch("m_clusenergy", &m_clusenergy, "m_clusenergy/D");
-  m_clustertree->Branch("m_cluseta", &m_cluseta, "m_cluseta/D");
-  m_clustertree->Branch("m_clustheta", &m_clustheta, "m_clustheta/D");
-  m_clustertree->Branch("m_cluspt", &m_cluspt, "m_cluspt/D");
-  m_clustertree->Branch("m_clusphi", &m_clusphi, "m_clusphi/D");
-  m_clustertree->Branch("m_cluspx", &m_cluspx, "m_cluspx/D");
-  m_clustertree->Branch("m_cluspy", &m_cluspy, "m_cluspy/D");
-  m_clustertree->Branch("m_cluspz", &m_cluspz, "m_cluspz/D");
-  m_clustertree->Branch("m_E_4x4", &m_E_4x4, "m_E_4x4/D");
+  m_truthtree->Branch("m_tr_px", &m_tr_px, "m_tr_px/D");
+  m_truthtree->Branch("m_tr_py", &m_tr_py, "m_tr_py/D");
+  m_truthtree->Branch("m_tr_pz", &m_tr_pz, "m_tr_pz/D");
+  m_truthtree->Branch("m_tr_p", &m_tr_p, "m_tr_p/D");
+  m_truthtree->Branch("m_tr_pt", &m_tr_pt, "m_tr_pt/D");
+  m_truthtree->Branch("m_tr_phi", &m_tr_phi, "m_tr_phi/D");
+  m_truthtree->Branch("m_tr_eta", &m_tr_eta, "m_tr_eta/D");
+  m_truthtree->Branch("m_charge", &m_charge, "m_charge/I");
+  m_truthtree->Branch("m_chisq", &m_chisq, "m_chisq/D");
+  m_truthtree->Branch("m_ndf", &m_ndf, "m_ndf/I");
+  m_truthtree->Branch("m_dca", &m_dca, "m_dca/D");
+  m_truthtree->Branch("m_tr_x", &m_tr_x, "m_tr_x/D");
+  m_truthtree->Branch("m_tr_y", &m_tr_y, "m_tr_y/D");
+  m_truthtree->Branch("m_tr_z", &m_tr_z, "m_tr_z/D");
+
+  const string xyzt[] = {"x", "y", "z", "t"};
+  for (int i = 0; i < 4; i++)
+  {
+    string bname = _calo_name + "_proj_" + xyzt[i];
+    string bdef = bname + "/F";
+
+    // fourth element is the path length
+    if (i == 3)
+    {
+      bdef = _calo_name + "_proj_path_length" + "/F";
+    }
+
+    m_truthtree->Branch(bname.c_str(), &m_TTree_proj_vec[i], bdef.c_str());
+  }
+
+  for (int i = 0; i < 3; i++)
+  {
+    string bname = _calo_name + "_proj_p" + xyzt[i];
+    string bdef = bname + "/F";
+    m_truthtree->Branch(bname.c_str(), &m_TTree_proj_p_vec[i], bdef.c_str());
+  }
+  //  m_clustertree = new TTree("clustertree", "A tree with emcal clusters");
+  //  m_clustertree->Branch("m_clusenergy", &m_clusenergy, "m_clusenergy/D");
+  //  m_clustertree->Branch("m_cluseta", &m_cluseta, "m_cluseta/D");
+  //  m_clustertree->Branch("m_clustheta", &m_clustheta, "m_clustheta/D");
+  //  m_clustertree->Branch("m_cluspt", &m_cluspt, "m_cluspt/D");
+  //  m_clustertree->Branch("m_clusphi", &m_clusphi, "m_clusphi/D");
+  //  m_clustertree->Branch("m_cluspx", &m_cluspx, "m_cluspx/D");
+  //  m_clustertree->Branch("m_cluspy", &m_cluspy, "m_cluspy/D");
+  //  m_clustertree->Branch("m_cluspz", &m_cluspz, "m_cluspz/D");
+  //  m_clustertree->Branch("m_E_4x4", &m_E_4x4, "m_E_4x4/D");
 }
 
 /**
@@ -933,10 +1149,6 @@ void eIDMLInterface::initializeTrees()
  */
 void eIDMLInterface::initializeVariables()
 {
-  m_outfile = new TFile();
-  m_phi_h = new TH1F();
-  m_eta_phi_h = new TH2F();
-
   m_partid1 = -99;
   m_partid2 = -99;
   m_x1 = -99;
@@ -971,6 +1183,10 @@ void eIDMLInterface::initializeVariables()
   m_tr_pion_loglikelihood = -99;
   m_tr_kaon_loglikelihood = -99;
   m_tr_proton_loglikelihood = -99;
+
+  std::fill(m_TTree_proj_vec.begin(), m_TTree_proj_vec.end(), -9999);
+  std::fill(m_TTree_proj_p_vec.begin(), m_TTree_proj_p_vec.end(), -9999);
+
   m_truth_is_primary = -99;
   m_truthtrackpx = -99;
   m_truthtrackpy = -99;

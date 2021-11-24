@@ -24,6 +24,10 @@ class PHHepMCGenEvent;
 class CaloTriggerInfo;
 class JetTruthEval;
 class JetEvalStack;
+class SvtxEvalStack;
+
+#include <utility>
+#include <vector>
 
 /// Definition of this analysis module class
 class eIDMLInterface : public SubsysReco
@@ -31,7 +35,7 @@ class eIDMLInterface : public SubsysReco
  public:
   /// Constructor
   eIDMLInterface(const std::string &name = "eIDMLInterface",
-              const std::string &fname = "eIDMLInterface.root");
+                 const std::string &fname = "eIDMLInterface.root");
 
   // Destructor
   virtual ~eIDMLInterface();
@@ -57,7 +61,32 @@ class eIDMLInterface : public SubsysReco
   void analyzeJets(bool analyzeJets) { m_analyzeJets = analyzeJets; }
   void analyzeTruth(bool analyzeTruth) { m_analyzeTruth = analyzeTruth; }
 
+  void setEtaRange(double min, double max)
+  {
+    m_etaRange.first = min;
+    m_etaRange.second = max;
+  }
+
  private:
+  std::pair<double, double> m_etaRange{-.5, 0};
+  // eval stack
+  SvtxEvalStack *_svtxevalstack = nullptr;
+  std::vector<float> m_TTree_proj_vec = {0, 0, 0, 0};
+  std::vector<float> m_TTree_proj_p_vec = {0, 0, 0};;
+
+  std::string _calo_name ;
+
+  static const int m_sizeTowerPatch = 7;
+  std::vector<float> m_TTree_Tower_dEta ;
+  std::vector<float> m_TTree_Tower_dPhi ;
+  std::vector<int> m_TTree_Tower_iEta ;
+  std::vector<int> m_TTree_Tower_iPhi ;
+  std::vector<float> m_TTree_Tower_E ;
+  float m_E3x3 = 0;
+  float m_E5x5 = 0;
+  float m_E7x7 = 0;
+
+
   /// String to contain the outfile name containing the trees
   std::string m_outfilename;
 

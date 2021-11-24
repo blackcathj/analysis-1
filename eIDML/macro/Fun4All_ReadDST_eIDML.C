@@ -24,9 +24,8 @@ R__LOAD_LIBRARY(libeidml.so)
 
 
 
-int Fun4All_ReadDST_eIDML(const int nEvents = 10,
-		    const string& inputFile = "singlePion.lst",
-		    const string &outputFile = "G4EICDetector.root")
+int Fun4All_ReadDST_eIDML(const int nEvents = 20,
+		    const string& inputFile = "singleElectron.lst")
 
 {
   //---------------
@@ -41,13 +40,13 @@ int Fun4All_ReadDST_eIDML(const int nEvents = 10,
   Input::READHITS = true;
   INPUTREADHITS::listfile[0] = inputFile;
 
-  eIDMLInterface *anaTutorial = new eIDMLInterface("anaTutorial", outputFile + "_anaTutorial.root");
-  anaTutorial->setMinJetPt(3.);
-  anaTutorial->Verbosity(0);
-  anaTutorial->analyzeTracks(true);
-  anaTutorial->analyzeClusters(true);
-  anaTutorial->analyzeJets(true);
-  anaTutorial->analyzeTruth(false);
+  eIDMLInterface *anaTutorial = new eIDMLInterface("BECAL", inputFile + "_BECAL.root");
+//  anaTutorial->setMinJetPt(3.);
+  anaTutorial->Verbosity(1);
+//  anaTutorial->analyzeTracks(true);
+//  anaTutorial->analyzeClusters(true);
+//  anaTutorial->analyzeJets(true);
+//  anaTutorial->analyzeTruth(false);
   se->registerSubsystem(anaTutorial);
 
   InputManagers();
