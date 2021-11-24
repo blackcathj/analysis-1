@@ -328,9 +328,10 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
 
         assert(central_tower);
 
-        if (Verbosity())
+        if (Verbosity()>1)
         {
           cout << __PRETTY_FUNCTION__ << " found tower " << central_tower_key << ": ";
+          cout << " min_tower_r2 =  " << min_tower_r2;
           cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
           cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
           cout << " minBinPhi =  " << minBinPhi;
@@ -344,14 +345,17 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
         const int size_half_tower_patch = (m_sizeTowerPatch - 1) / 2;  // 7x7
         size_t tower_index_patch = 0;
 
-        for (int ieta_patch = central_tower_eta - size_half_tower_patch;
-             ieta_patch <= central_tower_eta + size_half_tower_patch;
+        m_centralTowerBinEta = central_tower_eta;
+        m_centralTowerBinPhi = central_tower_phi;
+
+        for (int ieta_patch = -size_half_tower_patch;
+             ieta_patch <= +size_half_tower_patch;
              ++ieta_patch)
         {
           const int bin_eta = central_tower_eta + ieta_patch;
 
-          for (int iphi_patch = central_tower_phi - size_half_tower_patch;
-               iphi_patch <= central_tower_phi + size_half_tower_patch;
+          for (int iphi_patch = -size_half_tower_patch;
+               iphi_patch <= +size_half_tower_patch;
                ++iphi_patch)
           {
             assert(tower_index_patch < m_TTree_Tower_E.size());
@@ -380,6 +384,18 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
               m_TTree_Tower_dEta[tower_index_patch] = deta;
               m_TTree_Tower_dPhi[tower_index_patch] = dphi;
 
+              if (Verbosity()>2)
+              {
+                cout << __PRETTY_FUNCTION__ << " process tower geom " << tower_key << ": ";
+                cout << " ieta_patch =  " << ieta_patch;
+                cout << " iphi_patch =  " << iphi_patch;
+                cout << " bin_eta =  " << bin_eta;
+                cout << " bin_phi =  " << bin_phi;
+                cout << " deta =  " << deta;
+                cout << " dphi =  " << dphi;
+                tower_geom->identify();
+              }
+
               const RawTower *tower = towers->getTower(tower_key);
 
               if (tower)
@@ -391,6 +407,17 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
                 if (abs(ieta_patch) <= 3 and abs(iphi_patch) <= 3) m_E7x7 += energy;
 
                 m_TTree_Tower_E[tower_index_patch] = energy;
+
+                if (Verbosity()>2)
+                {
+                  cout << __PRETTY_FUNCTION__ << " process tower " << tower_key << ": ";
+                  cout << " ieta_patch =  " << ieta_patch;
+                  cout << " iphi_patch =  " << iphi_patch;
+                  cout << " bin_eta =  " << bin_eta;
+                  cout << " bin_phi =  " << bin_phi;
+                  cout << " energy =  " << energy;
+                  tower->identify();
+                }
 
               }  //               if (tower)
 
@@ -1166,13 +1193,18 @@ void eIDMLInterface::initializeTrees()
     m_truthtree->Branch(bname.c_str(), &m_TTree_proj_p_vec[i], bdef.c_str());
   }
 
-//  static const int nTowerInPatch = m_sizeTowerPatch * m_sizeTowerPatch;
+  //  static const int nTowerInPatch = m_sizeTowerPatch * m_sizeTowerPatch;
+  m_truthtree->Branch("Tower_E3x3", &m_E3x3, "Tower_E3x3/F");
+  m_truthtree->Branch("Tower_E5x5", &m_E5x5, "Tower_E5x5/F");
+  m_truthtree->Branch("Tower_E7x7", &m_E7x7, "Tower_E7x7/F");
+  m_truthtree->Branch("centralTowerBinEta", &m_centralTowerBinEta, "centralTowerBinEta/I");
+  m_truthtree->Branch("centralTowerBinPhi", &m_centralTowerBinPhi, "centralTowerBinPhi/I");
   m_truthtree->Branch("nTowerInPatch", &nTowerInPatch, "nTowerInPatch/I");
   m_truthtree->Branch("Tower_dEta", m_TTree_Tower_dEta.data(), "Tower_dEta[nTowerInPatch]/F");
   m_truthtree->Branch("Tower_dPhi", m_TTree_Tower_dPhi.data(), "Tower_dPhi[nTowerInPatch]/F");
   m_truthtree->Branch("Tower_iEta_patch", m_TTree_Tower_iEta_patch.data(), "Tower_iEta_patch[nTowerInPatch]/I");
   m_truthtree->Branch("Tower_iPhi_patch", m_TTree_Tower_iPhi_patch.data(), "Tower_iPhi_patch[nTowerInPatch]/I");
-  m_truthtree->Branch("Tower_E", m_TTree_Tower_E.data(), "Tower_E[nTowerInPatch]/I");
+  m_truthtree->Branch("Tower_E", m_TTree_Tower_E.data(), "Tower_E[nTowerInPatch]/F");
 
   //  m_clustertree = new TTree("clustertree", "A tree with emcal clusters");
   //  m_clustertree->Branch("m_clusenergy", &m_clusenergy, "m_clusenergy/D");
@@ -1237,8 +1269,12 @@ void eIDMLInterface::initializeVariables()
   std::fill(m_TTree_Tower_iPhi_patch.begin(), m_TTree_Tower_iPhi_patch.end(), 0);
   std::fill(m_TTree_Tower_E.begin(), m_TTree_Tower_E.end(), 0);
 
-  m_truth_is_primary = -99;
-  m_truthtrackpx = -99;
+  m_centralTowerBinEta = -9999;
+  m_centralTowerBinPhi = -9999;
+  m_E3x3 = 0;
+  m_E5x5 = 0;
+  m_E7x7 = 0;
+
   m_truthtrackpy = -99;
   m_truthtrackpz = -99;
   m_truthtrackp = -99;

@@ -68,7 +68,7 @@ class eIDMLInterface : public SubsysReco
   }
 
  private:
-  std::pair<double, double> m_etaRange{-.5, 0};
+  std::pair<double, double> m_etaRange{-.5, .5};
   // eval stack
   SvtxEvalStack *_svtxevalstack = nullptr;
   std::vector<float> m_TTree_proj_vec = {0, 0, 0, 0};
@@ -86,6 +86,8 @@ class eIDMLInterface : public SubsysReco
   float m_E3x3 = 0;
   float m_E5x5 = 0;
   float m_E7x7 = 0;
+  int m_centralTowerBinEta = 0;
+  int m_centralTowerBinPhi = 0;
 
 
   /// String to contain the outfile name containing the trees

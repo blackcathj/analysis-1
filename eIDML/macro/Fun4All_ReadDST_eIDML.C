@@ -24,8 +24,10 @@ R__LOAD_LIBRARY(libeidml.so)
 
 
 
-int Fun4All_ReadDST_eIDML(const int nEvents = 20,
-		    const string& inputFile = "singleElectron.lst")
+int Fun4All_ReadDST_eIDML(const int nEvents = 2000,
+//    const string& inputFile = "singleElectron.lst"//
+        const string& inputFile = "singlePion.lst"//
+		        )
 
 {
   //---------------
