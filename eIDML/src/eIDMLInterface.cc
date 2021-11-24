@@ -1165,6 +1165,15 @@ void eIDMLInterface::initializeTrees()
     string bdef = bname + "/F";
     m_truthtree->Branch(bname.c_str(), &m_TTree_proj_p_vec[i], bdef.c_str());
   }
+
+//  static const int nTowerInPatch = m_sizeTowerPatch * m_sizeTowerPatch;
+  m_truthtree->Branch("nTowerInPatch", &nTowerInPatch, "nTowerInPatch/I");
+  m_truthtree->Branch("Tower_dEta", m_TTree_Tower_dEta.data(), "Tower_dEta[nTowerInPatch]/F");
+  m_truthtree->Branch("Tower_dPhi", m_TTree_Tower_dPhi.data(), "Tower_dPhi[nTowerInPatch]/F");
+  m_truthtree->Branch("Tower_iEta_patch", m_TTree_Tower_iEta_patch.data(), "Tower_iEta_patch[nTowerInPatch]/I");
+  m_truthtree->Branch("Tower_iPhi_patch", m_TTree_Tower_iPhi_patch.data(), "Tower_iPhi_patch[nTowerInPatch]/I");
+  m_truthtree->Branch("Tower_E", m_TTree_Tower_E.data(), "Tower_E[nTowerInPatch]/I");
+
   //  m_clustertree = new TTree("clustertree", "A tree with emcal clusters");
   //  m_clustertree->Branch("m_clusenergy", &m_clusenergy, "m_clusenergy/D");
   //  m_clustertree->Branch("m_cluseta", &m_cluseta, "m_cluseta/D");
