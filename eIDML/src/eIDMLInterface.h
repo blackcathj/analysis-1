@@ -79,8 +79,8 @@ class eIDMLInterface : public SubsysReco
   static const int m_sizeTowerPatch = 7;
   std::vector<float> m_TTree_Tower_dEta ;
   std::vector<float> m_TTree_Tower_dPhi ;
-  std::vector<int> m_TTree_Tower_iEta ;
-  std::vector<int> m_TTree_Tower_iPhi ;
+  std::vector<int> m_TTree_Tower_iEta_patch ;
+  std::vector<int> m_TTree_Tower_iPhi_patch ;
   std::vector<float> m_TTree_Tower_E ;
   float m_E3x3 = 0;
   float m_E5x5 = 0;

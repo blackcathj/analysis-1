@@ -79,6 +79,11 @@ using namespace std;
 eIDMLInterface::eIDMLInterface(const std::string &name, const std::string &filename)
   : SubsysReco("eIDMLInterface_" + name)
   , _calo_name(name)
+  , m_TTree_Tower_dEta(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+  , m_TTree_Tower_dPhi(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+  , m_TTree_Tower_iEta_patch(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+  , m_TTree_Tower_iPhi_patch(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+  , m_TTree_Tower_E(m_sizeTowerPatch * m_sizeTowerPatch, 0)
   , m_outfilename(filename)
   , m_hm(nullptr)
   , m_minjetpt(5.0)
@@ -337,21 +342,30 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
         const int central_tower_eta = RawTowerDefs::decode_index1(central_tower_key);
         const int central_tower_phi = RawTowerDefs::decode_index2(central_tower_key);
         const int size_half_tower_patch = (m_sizeTowerPatch - 1) / 2;  // 7x7
+        size_t tower_index_patch = 0;
 
-        for (int ieta = central_tower_eta - size_half_tower_patch;
-             ieta <= central_tower_eta + size_half_tower_patch;
-             ++ieta)
+        for (int ieta_patch = central_tower_eta - size_half_tower_patch;
+             ieta_patch <= central_tower_eta + size_half_tower_patch;
+             ++ieta_patch)
         {
-          for (int iphi = central_tower_phi - size_half_tower_patch;
-               iphi <= central_tower_phi + size_half_tower_patch;
-               ++iphi)
+          const int bin_eta = central_tower_eta + ieta_patch;
+
+          for (int iphi_patch = central_tower_phi - size_half_tower_patch;
+               iphi_patch <= central_tower_phi + size_half_tower_patch;
+               ++iphi_patch)
           {
-            int wrapphi = iphi;
-            if (wrapphi < minBinPhi) wrapphi = wrapphi - minBinPhi + maxBinPhi + 1;
-            if (wrapphi > maxBinPhi) wrapphi = wrapphi - maxBinPhi + minBinPhi - 1;
+            assert(tower_index_patch < m_TTree_Tower_E.size());
+
+            int bin_phi = central_tower_phi + iphi_patch;
+
+            if (bin_phi < minBinPhi) bin_phi = bin_phi - minBinPhi + maxBinPhi + 1;
+            if (bin_phi > maxBinPhi) bin_phi = bin_phi - maxBinPhi + minBinPhi - 1;
+
+            m_TTree_Tower_iEta_patch[tower_index_patch] = ieta_patch;
+            m_TTree_Tower_iPhi_patch[tower_index_patch] = iphi_patch;
 
             RawTowerDefs::keytype tower_key = RawTowerDefs::encode_towerid(
-                towergeom->get_calorimeter_id(), ieta, iphi);
+                towergeom->get_calorimeter_id(), bin_eta, bin_phi);
             const RawTowerGeom *tower_geom = towergeom->get_tower_geometry(tower_key);
             if (tower_geom)
             {
@@ -362,9 +376,30 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
 
               const double deta = eta_proj - vec_tower.Eta();
               double dphi = phi_proj - vec_tower.Phi();
-            }
-          }
-        }
+
+              m_TTree_Tower_dEta[tower_index_patch] = deta;
+              m_TTree_Tower_dPhi[tower_index_patch] = dphi;
+
+              const RawTower *tower = towers->getTower(tower_key);
+
+              if (tower)
+              {
+                const double energy = tower->get_energy();
+
+                if (abs(ieta_patch) <= 1 and abs(iphi_patch) <= 1) m_E3x3 += energy;
+                if (abs(ieta_patch) <= 2 and abs(iphi_patch) <= 2) m_E5x5 += energy;
+                if (abs(ieta_patch) <= 3 and abs(iphi_patch) <= 3) m_E7x7 += energy;
+
+                m_TTree_Tower_E[tower_index_patch] = energy;
+
+              }  //               if (tower)
+
+              ++tower_index_patch;
+            }  //             if (tower_geom)
+
+          }  //           for (int iphi_patch = central_tower_phi - size_half_tower_patch;
+
+        }  //         for (int ieta_patch = central_tower_eta - size_half_tower_patch;
 
         //        const int bineta = RawTowerDefs::decode_index1(central_tower_key);
         //        const int binphi = RawTowerDefs::decode_index2(central_tower_key);
@@ -1186,6 +1221,12 @@ void eIDMLInterface::initializeVariables()
 
   std::fill(m_TTree_proj_vec.begin(), m_TTree_proj_vec.end(), -9999);
   std::fill(m_TTree_proj_p_vec.begin(), m_TTree_proj_p_vec.end(), -9999);
+
+  std::fill(m_TTree_Tower_dEta.begin(), m_TTree_Tower_dEta.end(), 0);
+  std::fill(m_TTree_Tower_dPhi.begin(), m_TTree_Tower_dPhi.end(), 0);
+  std::fill(m_TTree_Tower_iEta_patch.begin(), m_TTree_Tower_iEta_patch.end(), 0);
+  std::fill(m_TTree_Tower_iPhi_patch.begin(), m_TTree_Tower_iPhi_patch.end(), 0);
+  std::fill(m_TTree_Tower_E.begin(), m_TTree_Tower_E.end(), 0);
 
   m_truth_is_primary = -99;
   m_truthtrackpx = -99;
