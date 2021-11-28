@@ -326,9 +326,10 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
 
         }  //         for (RawTowerGeomContainer::ConstIterator titer = range.first;
 
-        assert(central_tower);
+        if (central_tower == nullptr) continue;
+        if (central_tower_key < 0) continue;
 
-        if (Verbosity()>1)
+        if (Verbosity() > 1)
         {
           cout << __PRETTY_FUNCTION__ << " found tower " << central_tower_key << ": ";
           cout << " min_tower_r2 =  " << min_tower_r2;
@@ -368,6 +369,24 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
             m_TTree_Tower_iEta_patch[tower_index_patch] = ieta_patch;
             m_TTree_Tower_iPhi_patch[tower_index_patch] = iphi_patch;
 
+            if (bin_eta > 4095 or bin_phi > 4095 or bin_eta<0 or bin_phi<0)
+            {
+              cout << __PRETTY_FUNCTION__ << " invalid tower geom " << central_tower_key << ": ";
+              cout << " bin_eta =  " << bin_eta;
+              cout << " bin_phi =  " << bin_phi;
+              cout << " central_tower_eta =  " << central_tower_eta;
+              cout << " central_tower_phi =  " << central_tower_phi;
+              cout << " central_tower_key =  " << central_tower_key;
+              cout << " min_tower_r2 =  " << min_tower_r2;
+              cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
+              cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
+              cout << " minBinPhi =  " << minBinPhi;
+              cout << " maxBinPhi =  " << maxBinPhi;
+              central_tower->identify();
+
+              return Fun4AllReturnCodes::ABORTEVENT;
+//              continue;
+            }
             RawTowerDefs::keytype tower_key = RawTowerDefs::encode_towerid(
                 towergeom->get_calorimeter_id(), bin_eta, bin_phi);
             const RawTowerGeom *tower_geom = towergeom->get_tower_geometry(tower_key);
@@ -384,7 +403,7 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
               m_TTree_Tower_dEta[tower_index_patch] = deta;
               m_TTree_Tower_dPhi[tower_index_patch] = dphi;
 
-              if (Verbosity()>2)
+              if (Verbosity() > 2)
               {
                 cout << __PRETTY_FUNCTION__ << " process tower geom " << tower_key << ": ";
                 cout << " ieta_patch =  " << ieta_patch;
@@ -408,7 +427,7 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
 
                 m_TTree_Tower_E[tower_index_patch] = energy;
 
-                if (Verbosity()>2)
+                if (Verbosity() > 2)
                 {
                   cout << __PRETTY_FUNCTION__ << " process tower " << tower_key << ": ";
                   cout << " ieta_patch =  " << ieta_patch;
