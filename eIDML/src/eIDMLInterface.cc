@@ -260,7 +260,7 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
            ++trkstates)
       {
         if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " checking " << trkstates->second->get_name() << endl;
-        if (trkstates->second->get_name().compare("BECAL") == 0)
+        if (trkstates->second->get_name().compare(detector) == 0)
         {
           if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " found " << trkstates->second->get_name() << endl;
           has_projection = true;
@@ -369,7 +369,7 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
             m_TTree_Tower_iEta_patch[tower_index_patch] = ieta_patch;
             m_TTree_Tower_iPhi_patch[tower_index_patch] = iphi_patch;
 
-            if (bin_eta > 4095 or bin_phi > 4095 or bin_eta<0 or bin_phi<0)
+            if (bin_eta > 4095 or bin_phi > 4095 or bin_eta < 0 or bin_phi < 0)
             {
               cout << __PRETTY_FUNCTION__ << " invalid tower geom " << central_tower_key << ": ";
               cout << " bin_eta =  " << bin_eta;
@@ -385,7 +385,7 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
               central_tower->identify();
 
               return Fun4AllReturnCodes::ABORTEVENT;
-//              continue;
+              //              continue;
             }
             RawTowerDefs::keytype tower_key = RawTowerDefs::encode_towerid(
                 towergeom->get_calorimeter_id(), bin_eta, bin_phi);

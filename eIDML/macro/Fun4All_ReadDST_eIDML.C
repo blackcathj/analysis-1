@@ -1,9 +1,8 @@
 #ifndef MACRO_FUN4ALL_READDST_C
 #define MACRO_FUN4ALL_READDST_C
 
-
-#include <GlobalVariables.C>
 #include <G4_Input.C>
+#include <GlobalVariables.C>
 
 #include <eidml/eIDMLInterface.h>
 
@@ -14,7 +13,6 @@
 
 #include <phool/recoConsts.h>
 
-
 R__LOAD_LIBRARY(libfun4all.so)
 // Use libg4eicdst for campaign 2 DSTs
 R__LOAD_LIBRARY(libg4eicdst.so)
@@ -22,13 +20,11 @@ R__LOAD_LIBRARY(libg4eicdst.so)
 //R__LOAD_LIBRARY(libg4dst.so)
 R__LOAD_LIBRARY(libeidml.so)
 
-
-
-int Fun4All_ReadDST_eIDML(const int nEvents = 0,
-//    const string& inputFile = "singleElectron.lst"//
-        //        const string& inputFile = "singlePion.lst"//
-                const string& inputFile = "singlePionNeg.lst"//
-		        )
+int Fun4All_ReadDST_eIDML(const int nEvents = 100,
+                          const string &inputFile = "singleElectron.lst"  //
+                                                                          //        const string& inputFile = "singlePion.lst"//
+                                                                          //                          const string &inputFile = "singlePionNeg.lst"  //
+)
 
 {
   //---------------
@@ -39,29 +35,40 @@ int Fun4All_ReadDST_eIDML(const int nEvents = 0,
 
   // just if we set some flags somewhere in this macro
   recoConsts *rc = recoConsts::instance();
-  
+
   Input::READHITS = true;
   INPUTREADHITS::listfile[0] = inputFile;
 
-  eIDMLInterface *anaTutorial = new eIDMLInterface("BECAL", inputFile + "_BECAL.root");
-//  anaTutorial->setMinJetPt(3.);
-  anaTutorial->Verbosity(1);
-//  anaTutorial->analyzeTracks(true);
-//  anaTutorial->analyzeClusters(true);
-//  anaTutorial->analyzeJets(true);
-//  anaTutorial->analyzeTruth(false);
-  se->registerSubsystem(anaTutorial);
+  {
+    eIDMLInterface *anaTutorial = new eIDMLInterface("BECAL", inputFile + "_BECAL_" + to_string(nEvents) + ".root");
+    anaTutorial->Verbosity(1);
+    anaTutorial->setEtaRange(-2, 2);
+    se->registerSubsystem(anaTutorial);
+  }
+
+  {
+    eIDMLInterface *anaTutorial = new eIDMLInterface("EEMC", inputFile + "_EEMC_" + to_string(nEvents) + ".root");
+    anaTutorial->Verbosity(1);
+    anaTutorial->setEtaRange(-4, 1);
+    se->registerSubsystem(anaTutorial);
+  }
+
+  {
+    eIDMLInterface *anaTutorial = new eIDMLInterface("FEMC", inputFile + "_FEMC_" + to_string(nEvents) + ".root");
+    anaTutorial->Verbosity(1);
+    anaTutorial->setEtaRange(1, 4);
+    se->registerSubsystem(anaTutorial);
+  }
 
   InputManagers();
 
   se->run(nEvents);
 
   se->End();
-  
+
   delete se;
   std::cout << "All done processing" << std::endl;
   gSystem->Exit(0);
   return 0;
-
 }
 #endif
