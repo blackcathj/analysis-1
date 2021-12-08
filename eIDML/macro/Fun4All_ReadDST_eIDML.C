@@ -20,10 +20,10 @@ R__LOAD_LIBRARY(libg4eicdst.so)
 //R__LOAD_LIBRARY(libg4dst.so)
 R__LOAD_LIBRARY(libeidml.so)
 
-int Fun4All_ReadDST_eIDML(const int nEvents = 100,
-                          const string &inputFile = "singleElectron.lst"  //
-                                                                          //        const string& inputFile = "singlePion.lst"//
-                                                                          //                          const string &inputFile = "singlePionNeg.lst"  //
+int Fun4All_ReadDST_eIDML(const int nEvents = 10,
+                          //                          const string &inputFile = "singleElectron.lst"  //
+                          //        const string& inputFile = "singlePion.lst"//
+                          const string &inputFile = "/phenix/u/jinhuang/tmp/DST_DiffractiveAndTagging_Sartre_ePb-18x108-mu-IP8_000_0749000_01000.root"  //
 )
 
 {
@@ -37,7 +37,7 @@ int Fun4All_ReadDST_eIDML(const int nEvents = 100,
   recoConsts *rc = recoConsts::instance();
 
   Input::READHITS = true;
-  INPUTREADHITS::listfile[0] = inputFile;
+  INPUTREADHITS::filename[0] = inputFile;
 
   {
     eIDMLInterface *anaTutorial = new eIDMLInterface("BECAL", inputFile + "_BECAL_" + to_string(nEvents) + ".root");
@@ -48,7 +48,7 @@ int Fun4All_ReadDST_eIDML(const int nEvents = 100,
 
   {
     eIDMLInterface *anaTutorial = new eIDMLInterface("EEMC", inputFile + "_EEMC_" + to_string(nEvents) + ".root");
-    anaTutorial->Verbosity(1);
+    anaTutorial->Verbosity(10);
     anaTutorial->setEtaRange(-4, 1);
     se->registerSubsystem(anaTutorial);
   }
