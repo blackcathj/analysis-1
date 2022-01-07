@@ -26,6 +26,7 @@ class JetTruthEval;
 class JetEvalStack;
 class SvtxEvalStack;
 
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -34,7 +35,7 @@ class eIDMLInterface : public SubsysReco
 {
  public:
   /// Constructor
-  eIDMLInterface(const std::string &name = "eIDMLInterface",
+  eIDMLInterface(const std::vector<std::string> &names = {"BECAL"},
                  const std::string &fname = "eIDMLInterface.root");
 
   // Destructor
@@ -71,24 +72,31 @@ class eIDMLInterface : public SubsysReco
   std::pair<double, double> m_etaRange{-.5, .5};
   // eval stack
   SvtxEvalStack *_svtxevalstack = nullptr;
-  std::vector<float> m_TTree_proj_vec = {0, 0, 0, 0};
-  std::vector<float> m_TTree_proj_p_vec = {0, 0, 0};;
+  ;
 
-  std::string _calo_name ;
+  std::vector<std::string> _calo_names;
 
-  static const int m_sizeTowerPatch = 7;
-  int nTowerInPatch = m_sizeTowerPatch * m_sizeTowerPatch;
-  std::vector<float> m_TTree_Tower_dEta ;
-  std::vector<float> m_TTree_Tower_dPhi ;
-  std::vector<int> m_TTree_Tower_iEta_patch ;
-  std::vector<int> m_TTree_Tower_iPhi_patch ;
-  std::vector<float> m_TTree_Tower_E ;
-  float m_E3x3 = 0;
-  float m_E5x5 = 0;
-  float m_E7x7 = 0;
-  int m_centralTowerBinEta = 0;
-  int m_centralTowerBinPhi = 0;
+  struct CaloData
+  {
+    std::vector<float> m_TTree_proj_vec = {0, 0, 0, 0};
+    std::vector<float> m_TTree_proj_p_vec = {0, 0, 0};
+    static const int m_sizeTowerPatch = 7;
+    int nTowerInPatch = m_sizeTowerPatch * m_sizeTowerPatch;
+    std::vector<float> m_TTree_Tower_dEta = std::vector<float>(m_sizeTowerPatch * m_sizeTowerPatch, 0);
+    std::vector<float> m_TTree_Tower_dPhi = std::vector<float>(m_sizeTowerPatch * m_sizeTowerPatch, 0);
+    std::vector<int> m_TTree_Tower_iEta_patch = std::vector<int>(m_sizeTowerPatch * m_sizeTowerPatch, 0);
+    std::vector<int> m_TTree_Tower_iPhi_patch = std::vector<int>(m_sizeTowerPatch * m_sizeTowerPatch, 0);
+    std::vector<float> m_TTree_Tower_E = std::vector<float>(m_sizeTowerPatch * m_sizeTowerPatch, 0);
+    float m_E3x3 = 0;
+    float m_E5x5 = 0;
+    float m_E7x7 = 0;
+    int m_centralTowerBinEta = 0;
+    int m_centralTowerBinPhi = 0;
 
+    void initializeVariables();
+  };
+
+  std::map<std::string, CaloData> m_CaloDataMap;
 
   /// String to contain the outfile name containing the trees
   std::string m_outfilename;

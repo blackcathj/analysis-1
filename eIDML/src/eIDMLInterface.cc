@@ -76,14 +76,14 @@ using namespace std;
 /**
  * Constructor of module
  */
-eIDMLInterface::eIDMLInterface(const std::string &name, const std::string &filename)
-  : SubsysReco("eIDMLInterface_" + name)
-  , _calo_name(name)
-  , m_TTree_Tower_dEta(m_sizeTowerPatch * m_sizeTowerPatch, 0)
-  , m_TTree_Tower_dPhi(m_sizeTowerPatch * m_sizeTowerPatch, 0)
-  , m_TTree_Tower_iEta_patch(m_sizeTowerPatch * m_sizeTowerPatch, 0)
-  , m_TTree_Tower_iPhi_patch(m_sizeTowerPatch * m_sizeTowerPatch, 0)
-  , m_TTree_Tower_E(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+eIDMLInterface::eIDMLInterface(const std::vector<std::string> &names, const std::string &filename)
+  : SubsysReco("eIDMLInterface_" + names[0])
+  , _calo_names(names)
+  //  , m_TTree_Tower_dEta(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+  //  , m_TTree_Tower_dPhi(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+  //  , m_TTree_Tower_iEta_patch(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+  //  , m_TTree_Tower_iPhi_patch(m_sizeTowerPatch * m_sizeTowerPatch, 0)
+  //  , m_TTree_Tower_E(m_sizeTowerPatch * m_sizeTowerPatch, 0)
   , m_outfilename(filename)
   , m_hm(nullptr)
   , m_minjetpt(5.0)
@@ -138,28 +138,6 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
   /// G4 truth particle node
   PHG4TruthInfoContainer *truthinfo = findNode::getClass<PHG4TruthInfoContainer>(topNode, "G4TruthInfo");
   SvtxTrackMap *trackmap = findNode::getClass<SvtxTrackMap>(topNode, "TrackMap");
-
-  const std::string detector(_calo_name);
-
-  std::string towernodename = "TOWER_CALIB_" + detector;
-  // Grab the towers
-  RawTowerContainer *towers = findNode::getClass<RawTowerContainer>(topNode,
-                                                                    towernodename);
-  if (!towers)
-  {
-    std::cout << PHWHERE << ": Could not find node " << towernodename
-              << std::endl;
-    return Fun4AllReturnCodes::ABORTRUN;
-  }
-  std::string towergeomnodename = "TOWERGEOM_" + detector;
-  RawTowerGeomContainer *towergeom = findNode::getClass<RawTowerGeomContainer>(
-      topNode, towergeomnodename);
-  if (!towergeom)
-  {
-    std::cout << PHWHERE << ": Could not find node " << towergeomnodename
-              << std::endl;
-    return Fun4AllReturnCodes::ABORTRUN;
-  }
 
   if (!truthinfo)
   {
@@ -253,204 +231,232 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
       m_tr_y = track->get_y();
       m_tr_z = track->get_z();
 
-      bool has_projection(false);
-      // find projections
-      for (SvtxTrack::ConstStateIter trkstates = track->begin_states();
-           trkstates != track->end_states();
-           ++trkstates)
+      for (const std::string detector : _calo_names)
       {
-        if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " checking " << trkstates->second->get_name() << endl;
-        if (trkstates->second->get_name().compare(detector) == 0)
-        {
-          if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " found " << trkstates->second->get_name() << endl;
-          has_projection = true;
+        //  const std::string detector(_calo_name);
 
-          // setting the projection (xyz and pxpypz)
-          for (int i = 0; i < 3; i++)
-          {
-            m_TTree_proj_vec[i] = trkstates->second->get_pos(i);
-            m_TTree_proj_p_vec[i] = trkstates->second->get_mom(i);
-          }
-          // fourth element is the path length
-          m_TTree_proj_vec[3] = trkstates->first;
+        std::string towernodename = "TOWER_CALIB_" + detector;
+        // Grab the towers
+        RawTowerContainer *towers = findNode::getClass<RawTowerContainer>(topNode,
+                                                                          towernodename);
+        if (!towers)
+        {
+          std::cout << PHWHERE << ": Could not find node " << towernodename
+                    << std::endl;
+          return Fun4AllReturnCodes::ABORTRUN;
         }
-      }  //       for (SvtxTrack::ConstStateIter trkstates = track->begin_states();
-
-      // projection match to calorimeter
-      if (has_projection)
-      {
-        TVector3 vec_proj(m_TTree_proj_vec[0], m_TTree_proj_vec[1], m_TTree_proj_vec[2]);
-
-        const double eta_proj = vec_proj.Eta();
-        const double phi_proj = vec_proj.Phi();
-
-        double min_tower_r2 = 1000;
-        RawTowerDefs::keytype central_tower_key = -1;
-        const RawTowerGeom *central_tower(nullptr);
-        int maxBinPhi = 0;
-        int minBinPhi = 1000;
-
-        RawTowerGeomContainer::ConstRange range = towergeom->get_tower_geometries();
-        /// Loop over the G4 truth (stable) particles
-        for (RawTowerGeomContainer::ConstIterator titer = range.first;
-             titer != range.second;
-             ++titer)
+        std::string towergeomnodename = "TOWERGEOM_" + detector;
+        RawTowerGeomContainer *towergeom = findNode::getClass<RawTowerGeomContainer>(
+            topNode, towergeomnodename);
+        if (!towergeom)
         {
-          //          const int bineta = RawTowerDefs::decode_index1(titer->first);
-          const int binphi = RawTowerDefs::decode_index2(titer->first);
-          if (maxBinPhi < binphi) maxBinPhi = binphi;
-          if (minBinPhi > binphi) minBinPhi = binphi;
-
-          const RawTowerGeom *tower_geom = titer->second;
-          assert(tower_geom);
-
-          TVector3 vec_tower(
-              tower_geom->get_center_x(),
-              tower_geom->get_center_y(),
-              tower_geom->get_center_z());
-
-          const double deta = eta_proj - vec_tower.Eta();
-          double dphi = phi_proj - vec_tower.Phi();
-
-          if (dphi > M_PI) dphi -= 2 * M_PI;
-          if (dphi < -M_PI) dphi += 2 * M_PI;
-
-          const double r2 = dphi * dphi + deta * deta;
-
-          if (r2 < min_tower_r2)
-          {
-            min_tower_r2 = r2;
-            central_tower_key = titer->first;
-            central_tower = titer->second;
-          }
-
-        }  //         for (RawTowerGeomContainer::ConstIterator titer = range.first;
-
-        if (central_tower == nullptr) continue;
-        if (central_tower_key < 0) continue;
-
-        if (Verbosity() > 1)
-        {
-          cout << __PRETTY_FUNCTION__ << " found tower " << central_tower_key << ": ";
-          cout << " min_tower_r2 =  " << min_tower_r2;
-          cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
-          cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
-          cout << " minBinPhi =  " << minBinPhi;
-          cout << " maxBinPhi =  " << maxBinPhi;
-          central_tower->identify();
+          std::cout << PHWHERE << ": Could not find node " << towergeomnodename
+                    << std::endl;
+          return Fun4AllReturnCodes::ABORTRUN;
         }
 
-        // print tower patch
-        const int central_tower_eta = RawTowerDefs::decode_index1(central_tower_key);
-        const int central_tower_phi = RawTowerDefs::decode_index2(central_tower_key);
-        const int size_half_tower_patch = (m_sizeTowerPatch - 1) / 2;  // 7x7
-        size_t tower_index_patch = 0;
-
-        m_centralTowerBinEta = central_tower_eta;
-        m_centralTowerBinPhi = central_tower_phi;
-
-        for (int ieta_patch = -size_half_tower_patch;
-             ieta_patch <= +size_half_tower_patch;
-             ++ieta_patch)
+        bool has_projection(false);
+        // find projections
+        for (SvtxTrack::ConstStateIter trkstates = track->begin_states();
+             trkstates != track->end_states();
+             ++trkstates)
         {
-          const int bin_eta = central_tower_eta + ieta_patch;
-
-          for (int iphi_patch = -size_half_tower_patch;
-               iphi_patch <= +size_half_tower_patch;
-               ++iphi_patch)
+          if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " checking " << trkstates->second->get_name() << endl;
+          if (trkstates->second->get_name().compare(detector) == 0)
           {
-            assert(tower_index_patch < m_TTree_Tower_E.size());
+            if (Verbosity() > 1) cout << __PRETTY_FUNCTION__ << " found " << trkstates->second->get_name() << endl;
+            has_projection = true;
 
-            int bin_phi = central_tower_phi + iphi_patch;
-
-            if (bin_phi < minBinPhi) bin_phi = bin_phi - minBinPhi + maxBinPhi + 1;
-            if (bin_phi > maxBinPhi) bin_phi = bin_phi - maxBinPhi + minBinPhi - 1;
-
-            m_TTree_Tower_iEta_patch[tower_index_patch] = ieta_patch;
-            m_TTree_Tower_iPhi_patch[tower_index_patch] = iphi_patch;
-
-            if (bin_eta > 4095 or bin_phi > 4095 or bin_eta < 0 or bin_phi < 0)
+            // setting the projection (xyz and pxpypz)
+            for (int i = 0; i < 3; i++)
             {
-              cout << __PRETTY_FUNCTION__ << " invalid tower geom " << central_tower_key << ": ";
-              cout << " bin_eta =  " << bin_eta;
-              cout << " bin_phi =  " << bin_phi;
-              cout << " central_tower_eta =  " << central_tower_eta;
-              cout << " central_tower_phi =  " << central_tower_phi;
-              cout << " central_tower_key =  " << central_tower_key;
-              cout << " min_tower_r2 =  " << min_tower_r2;
-              cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
-              cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
-              cout << " minBinPhi =  " << minBinPhi;
-              cout << " maxBinPhi =  " << maxBinPhi;
-              central_tower->identify();
-
-              return Fun4AllReturnCodes::ABORTEVENT;
-              //              continue;
+              m_CaloDataMap[detector].m_TTree_proj_vec[i] = trkstates->second->get_pos(i);
+              m_CaloDataMap[detector].m_TTree_proj_p_vec[i] = trkstates->second->get_mom(i);
             }
-            RawTowerDefs::keytype tower_key = RawTowerDefs::encode_towerid(
-                towergeom->get_calorimeter_id(), bin_eta, bin_phi);
-            const RawTowerGeom *tower_geom = towergeom->get_tower_geometry(tower_key);
-            if (tower_geom)
+            // fourth element is the path length
+            m_CaloDataMap[detector].m_TTree_proj_vec[3] = trkstates->first;
+          }
+        }  //       for (SvtxTrack::ConstStateIter trkstates = track->begin_states();
+
+        // projection match to calorimeter
+        if (has_projection)
+        {
+          TVector3 vec_proj(m_CaloDataMap[detector].m_TTree_proj_vec[0],
+                            m_CaloDataMap[detector].m_TTree_proj_vec[1],
+                            m_CaloDataMap[detector].m_TTree_proj_vec[2]);
+
+          const double eta_proj = vec_proj.Eta();
+          const double phi_proj = vec_proj.Phi();
+
+          double min_tower_r2 = 1000;
+          RawTowerDefs::keytype central_tower_key = -1;
+          const RawTowerGeom *central_tower(nullptr);
+          int maxBinPhi = 0;
+          int minBinPhi = 1000;
+
+          RawTowerGeomContainer::ConstRange range = towergeom->get_tower_geometries();
+          /// Loop over the G4 truth (stable) particles
+          for (RawTowerGeomContainer::ConstIterator titer = range.first;
+               titer != range.second;
+               ++titer)
+          {
+            //          const int bineta = RawTowerDefs::decode_index1(titer->first);
+            const int binphi = RawTowerDefs::decode_index2(titer->first);
+            if (maxBinPhi < binphi) maxBinPhi = binphi;
+            if (minBinPhi > binphi) minBinPhi = binphi;
+
+            const RawTowerGeom *tower_geom = titer->second;
+            assert(tower_geom);
+
+            TVector3 vec_tower(
+                tower_geom->get_center_x(),
+                tower_geom->get_center_y(),
+                tower_geom->get_center_z());
+
+            const double deta = eta_proj - vec_tower.Eta();
+            double dphi = phi_proj - vec_tower.Phi();
+
+            if (dphi > M_PI) dphi -= 2 * M_PI;
+            if (dphi < -M_PI) dphi += 2 * M_PI;
+
+            const double r2 = dphi * dphi + deta * deta;
+
+            if (r2 < min_tower_r2)
             {
-              TVector3 vec_tower(
-                  tower_geom->get_center_x(),
-                  tower_geom->get_center_y(),
-                  tower_geom->get_center_z());
+              min_tower_r2 = r2;
+              central_tower_key = titer->first;
+              central_tower = titer->second;
+            }
 
-              const double deta = eta_proj - vec_tower.Eta();
-              double dphi = phi_proj - vec_tower.Phi();
+          }  //         for (RawTowerGeomContainer::ConstIterator titer = range.first;
 
-              m_TTree_Tower_dEta[tower_index_patch] = deta;
-              m_TTree_Tower_dPhi[tower_index_patch] = dphi;
+          if (central_tower == nullptr) continue;
+          if (central_tower_key < 0) continue;
 
-              if (Verbosity() > 2)
+          if (Verbosity() > 1)
+          {
+            cout << __PRETTY_FUNCTION__ << " found tower " << central_tower_key << ": ";
+            cout << " min_tower_r2 =  " << min_tower_r2;
+            cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
+            cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
+            cout << " minBinPhi =  " << minBinPhi;
+            cout << " maxBinPhi =  " << maxBinPhi;
+            central_tower->identify();
+          }
+
+          // print tower patch
+          const int central_tower_eta = RawTowerDefs::decode_index1(central_tower_key);
+          const int central_tower_phi = RawTowerDefs::decode_index2(central_tower_key);
+          const int size_half_tower_patch = (m_CaloDataMap[detector].m_sizeTowerPatch - 1) / 2;  // 7x7
+          size_t tower_index_patch = 0;
+
+          m_CaloDataMap[detector].m_centralTowerBinEta = central_tower_eta;
+          m_CaloDataMap[detector].m_centralTowerBinPhi = central_tower_phi;
+
+          for (int ieta_patch = -size_half_tower_patch;
+               ieta_patch <= +size_half_tower_patch;
+               ++ieta_patch)
+          {
+            const int bin_eta = central_tower_eta + ieta_patch;
+
+            for (int iphi_patch = -size_half_tower_patch;
+                 iphi_patch <= +size_half_tower_patch;
+                 ++iphi_patch)
+            {
+              assert(tower_index_patch < m_CaloDataMap[detector].m_TTree_Tower_E.size());
+
+              int bin_phi = central_tower_phi + iphi_patch;
+
+              if (bin_phi < minBinPhi) bin_phi = bin_phi - minBinPhi + maxBinPhi + 1;
+              if (bin_phi > maxBinPhi) bin_phi = bin_phi - maxBinPhi + minBinPhi - 1;
+
+              m_CaloDataMap[detector].m_TTree_Tower_iEta_patch[tower_index_patch] = ieta_patch;
+              m_CaloDataMap[detector].m_TTree_Tower_iPhi_patch[tower_index_patch] = iphi_patch;
+
+              if (bin_eta > 4095 or bin_phi > 4095 or bin_eta < 0 or bin_phi < 0)
               {
-                cout << __PRETTY_FUNCTION__ << " process tower geom " << tower_key << ": ";
-                cout << " ieta_patch =  " << ieta_patch;
-                cout << " iphi_patch =  " << iphi_patch;
+                cout << __PRETTY_FUNCTION__ << " invalid tower geom " << central_tower_key << ": ";
                 cout << " bin_eta =  " << bin_eta;
                 cout << " bin_phi =  " << bin_phi;
-                cout << " deta =  " << deta;
-                cout << " dphi =  " << dphi;
-                tower_geom->identify();
+                cout << " central_tower_eta =  " << central_tower_eta;
+                cout << " central_tower_phi =  " << central_tower_phi;
+                cout << " central_tower_key =  " << central_tower_key;
+                cout << " min_tower_r2 =  " << min_tower_r2;
+                cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
+                cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
+                cout << " minBinPhi =  " << minBinPhi;
+                cout << " maxBinPhi =  " << maxBinPhi;
+                central_tower->identify();
+
+                return Fun4AllReturnCodes::ABORTEVENT;
+                //              continue;
               }
-
-              const RawTower *tower = towers->getTower(tower_key);
-
-              if (tower)
+              RawTowerDefs::keytype tower_key = RawTowerDefs::encode_towerid(
+                  towergeom->get_calorimeter_id(), bin_eta, bin_phi);
+              const RawTowerGeom *tower_geom = towergeom->get_tower_geometry(tower_key);
+              if (tower_geom)
               {
-                const double energy = tower->get_energy();
+                TVector3 vec_tower(
+                    tower_geom->get_center_x(),
+                    tower_geom->get_center_y(),
+                    tower_geom->get_center_z());
 
-                if (abs(ieta_patch) <= 1 and abs(iphi_patch) <= 1) m_E3x3 += energy;
-                if (abs(ieta_patch) <= 2 and abs(iphi_patch) <= 2) m_E5x5 += energy;
-                if (abs(ieta_patch) <= 3 and abs(iphi_patch) <= 3) m_E7x7 += energy;
+                const double deta = eta_proj - vec_tower.Eta();
+                double dphi = phi_proj - vec_tower.Phi();
 
-                m_TTree_Tower_E[tower_index_patch] = energy;
+                m_CaloDataMap[detector].m_TTree_Tower_dEta[tower_index_patch] = deta;
+                m_CaloDataMap[detector].m_TTree_Tower_dPhi[tower_index_patch] = dphi;
 
                 if (Verbosity() > 2)
                 {
-                  cout << __PRETTY_FUNCTION__ << " process tower " << tower_key << ": ";
+                  cout << __PRETTY_FUNCTION__ << " process tower geom " << tower_key << ": ";
                   cout << " ieta_patch =  " << ieta_patch;
                   cout << " iphi_patch =  " << iphi_patch;
                   cout << " bin_eta =  " << bin_eta;
                   cout << " bin_phi =  " << bin_phi;
-                  cout << " energy =  " << energy;
-                  tower->identify();
+                  cout << " deta =  " << deta;
+                  cout << " dphi =  " << dphi;
+                  tower_geom->identify();
                 }
 
-              }  //               if (tower)
+                const RawTower *tower = towers->getTower(tower_key);
 
-              ++tower_index_patch;
-            }  //             if (tower_geom)
+                if (tower)
+                {
+                  const double energy = tower->get_energy();
 
-          }  //           for (int iphi_patch = central_tower_phi - size_half_tower_patch;
+                  if (abs(ieta_patch) <= 1 and abs(iphi_patch) <= 1) m_CaloDataMap[detector].m_E3x3 += energy;
+                  if (abs(ieta_patch) <= 2 and abs(iphi_patch) <= 2) m_CaloDataMap[detector].m_E5x5 += energy;
+                  if (abs(ieta_patch) <= 3 and abs(iphi_patch) <= 3) m_CaloDataMap[detector].m_E7x7 += energy;
 
-        }  //         for (int ieta_patch = central_tower_eta - size_half_tower_patch;
+                  m_CaloDataMap[detector].m_TTree_Tower_E[tower_index_patch] = energy;
 
-        //        const int bineta = RawTowerDefs::decode_index1(central_tower_key);
-        //        const int binphi = RawTowerDefs::decode_index2(central_tower_key);
+                  if (Verbosity() > 2)
+                  {
+                    cout << __PRETTY_FUNCTION__ << " process tower " << tower_key << ": ";
+                    cout << " ieta_patch =  " << ieta_patch;
+                    cout << " iphi_patch =  " << iphi_patch;
+                    cout << " bin_eta =  " << bin_eta;
+                    cout << " bin_phi =  " << bin_phi;
+                    cout << " energy =  " << energy;
+                    tower->identify();
+                  }
 
-      }  //       if (has_projection)
+                }  //               if (tower)
+
+                ++tower_index_patch;
+              }  //             if (tower_geom)
+
+            }  //           for (int iphi_patch = central_tower_phi - size_half_tower_patch;
+
+          }  //         for (int ieta_patch = central_tower_eta - size_half_tower_patch;
+
+          //        const int bineta = RawTowerDefs::decode_index1(central_tower_key);
+          //        const int binphi = RawTowerDefs::decode_index2(central_tower_key);
+
+        }  //       if (has_projection)
+
+      }  // iterate detectors
 
     }  //     if (track)
 
@@ -1191,52 +1197,73 @@ void eIDMLInterface::initializeTrees()
   m_truthtree->Branch("m_tr_z", &m_tr_z, "m_tr_z/D");
 
   const string xyzt[] = {"x", "y", "z", "t"};
-  for (int i = 0; i < 4; i++)
-  {
-    string bname = _calo_name + "_proj_" + xyzt[i];
-    string bdef = bname + "/F";
 
-    // fourth element is the path length
-    if (i == 3)
+  for (std::string _calo_name : _calo_names)
+  {
+    for (int i = 0; i < 4; i++)
     {
-      bdef = _calo_name + "_proj_path_length" + "/F";
+      string bname = _calo_name + "_proj_" + xyzt[i];
+      string bdef = bname + "/F";
+
+      // fourth element is the path length
+      if (i == 3)
+      {
+        bdef = _calo_name + "_proj_path_length" + "/F";
+      }
+
+      m_truthtree->Branch(bname.c_str(), &m_CaloDataMap[_calo_name].m_TTree_proj_vec[i], bdef.c_str());
     }
 
-    m_truthtree->Branch(bname.c_str(), &m_TTree_proj_vec[i], bdef.c_str());
-  }
+    for (int i = 0; i < 3; i++)
+    {
+      string bname = _calo_name + "_proj_p" + xyzt[i];
+      string bdef = bname + "/F";
+      m_truthtree->Branch(bname.c_str(), &m_CaloDataMap[_calo_name].m_TTree_proj_p_vec[i], bdef.c_str());
+    }
 
-  for (int i = 0; i < 3; i++)
-  {
-    string bname = _calo_name + "_proj_p" + xyzt[i];
-    string bdef = bname + "/F";
-    m_truthtree->Branch(bname.c_str(), &m_TTree_proj_p_vec[i], bdef.c_str());
-  }
+    //  static const int nTowerInPatch = m_sizeTowerPatch * m_sizeTowerPatch;
+    m_truthtree->Branch((_calo_name + "_Tower_E3x3").c_str(), &m_CaloDataMap[_calo_name].m_E3x3, (_calo_name + "_Tower_E3x3/F").c_str());
+    m_truthtree->Branch((_calo_name + "_Tower_E5x5").c_str(), &m_CaloDataMap[_calo_name].m_E5x5, (_calo_name + "_Tower_E5x5/F").c_str());
+    m_truthtree->Branch((_calo_name + "_Tower_E7x7").c_str(), &m_CaloDataMap[_calo_name].m_E7x7, (_calo_name + "_Tower_E7x7/F").c_str());
+    m_truthtree->Branch((_calo_name + "_centralTowerBinEta").c_str(), &m_CaloDataMap[_calo_name].m_centralTowerBinEta, (_calo_name + "_centralTowerBinEta/I").c_str());
+    m_truthtree->Branch((_calo_name + "_centralTowerBinPhi").c_str(), &m_CaloDataMap[_calo_name].m_centralTowerBinPhi, (_calo_name + "_centralTowerBinPhi/I").c_str());
+    m_truthtree->Branch((_calo_name + "_nTowerInPatch").c_str(), &m_CaloDataMap[_calo_name].nTowerInPatch, (_calo_name + "_nTowerInPatch/I").c_str());
+    m_truthtree->Branch((_calo_name + "_Tower_dEta").c_str(), m_CaloDataMap[_calo_name].m_TTree_Tower_dEta.data(), (_calo_name + "_Tower_dEta[" + _calo_name + "_nTowerInPatch]/F").c_str());
+    m_truthtree->Branch((_calo_name + "_Tower_dPhi").c_str(), m_CaloDataMap[_calo_name].m_TTree_Tower_dPhi.data(), (_calo_name + "_Tower_dPhi[" + _calo_name + "_nTowerInPatch]/F").c_str());
+    m_truthtree->Branch((_calo_name + "_Tower_iEta_patch").c_str(), m_CaloDataMap[_calo_name].m_TTree_Tower_iEta_patch.data(), (_calo_name + "_Tower_iEta_patch[" + _calo_name + "_nTowerInPatch]/I").c_str());
+    m_truthtree->Branch((_calo_name + "_Tower_iPhi_patch").c_str(), m_CaloDataMap[_calo_name].m_TTree_Tower_iPhi_patch.data(), (_calo_name + "_Tower_iPhi_patch[" + _calo_name + "_nTowerInPatch]/I").c_str());
+    m_truthtree->Branch((_calo_name + "_Tower_E").c_str(), m_CaloDataMap[_calo_name].m_TTree_Tower_E.data(), (_calo_name + "_Tower_E[" + _calo_name + "_nTowerInPatch]/F").c_str());
 
-  //  static const int nTowerInPatch = m_sizeTowerPatch * m_sizeTowerPatch;
-  m_truthtree->Branch("Tower_E3x3", &m_E3x3, "Tower_E3x3/F");
-  m_truthtree->Branch("Tower_E5x5", &m_E5x5, "Tower_E5x5/F");
-  m_truthtree->Branch("Tower_E7x7", &m_E7x7, "Tower_E7x7/F");
-  m_truthtree->Branch("centralTowerBinEta", &m_centralTowerBinEta, "centralTowerBinEta/I");
-  m_truthtree->Branch("centralTowerBinPhi", &m_centralTowerBinPhi, "centralTowerBinPhi/I");
-  m_truthtree->Branch("nTowerInPatch", &nTowerInPatch, "nTowerInPatch/I");
-  m_truthtree->Branch("Tower_dEta", m_TTree_Tower_dEta.data(), "Tower_dEta[nTowerInPatch]/F");
-  m_truthtree->Branch("Tower_dPhi", m_TTree_Tower_dPhi.data(), "Tower_dPhi[nTowerInPatch]/F");
-  m_truthtree->Branch("Tower_iEta_patch", m_TTree_Tower_iEta_patch.data(), "Tower_iEta_patch[nTowerInPatch]/I");
-  m_truthtree->Branch("Tower_iPhi_patch", m_TTree_Tower_iPhi_patch.data(), "Tower_iPhi_patch[nTowerInPatch]/I");
-  m_truthtree->Branch("Tower_E", m_TTree_Tower_E.data(), "Tower_E[nTowerInPatch]/F");
-
-  //  m_clustertree = new TTree("clustertree", "A tree with emcal clusters");
-  //  m_clustertree->Branch("m_clusenergy", &m_clusenergy, "m_clusenergy/D");
-  //  m_clustertree->Branch("m_cluseta", &m_cluseta, "m_cluseta/D");
-  //  m_clustertree->Branch("m_clustheta", &m_clustheta, "m_clustheta/D");
-  //  m_clustertree->Branch("m_cluspt", &m_cluspt, "m_cluspt/D");
-  //  m_clustertree->Branch("m_clusphi", &m_clusphi, "m_clusphi/D");
-  //  m_clustertree->Branch("m_cluspx", &m_cluspx, "m_cluspx/D");
-  //  m_clustertree->Branch("m_cluspy", &m_cluspy, "m_cluspy/D");
-  //  m_clustertree->Branch("m_cluspz", &m_cluspz, "m_cluspz/D");
-  //  m_clustertree->Branch("m_E_4x4", &m_E_4x4, "m_E_4x4/D");
+    //  m_clustertree = new TTree("clustertree", "A tree with emcal clusters");
+    //  m_clustertree->Branch("m_clusenergy", &m_clusenergy, "m_clusenergy/D");
+    //  m_clustertree->Branch("m_cluseta", &m_cluseta, "m_cluseta/D");
+    //  m_clustertree->Branch("m_clustheta", &m_clustheta, "m_clustheta/D");
+    //  m_clustertree->Branch("m_cluspt", &m_cluspt, "m_cluspt/D");
+    //  m_clustertree->Branch("m_clusphi", &m_clusphi, "m_clusphi/D");
+    //  m_clustertree->Branch("m_cluspx", &m_cluspx, "m_cluspx/D");
+    //  m_clustertree->Branch("m_cluspy", &m_cluspy, "m_cluspy/D");
+    //  m_clustertree->Branch("m_cluspz", &m_cluspz, "m_cluspz/D");
+    //  m_clustertree->Branch("m_E_4x4", &m_E_4x4, "m_E_4x4/D");
+  }  //  for (std::string _calo_name : _calo_names)
 }
 
+void eIDMLInterface::CaloData::initializeVariables()
+{
+  std::fill(m_TTree_proj_vec.begin(), m_TTree_proj_vec.end(), -9999);
+  std::fill(m_TTree_proj_p_vec.begin(), m_TTree_proj_p_vec.end(), -9999);
+
+  std::fill(m_TTree_Tower_dEta.begin(), m_TTree_Tower_dEta.end(), 0);
+  std::fill(m_TTree_Tower_dPhi.begin(), m_TTree_Tower_dPhi.end(), 0);
+  std::fill(m_TTree_Tower_iEta_patch.begin(), m_TTree_Tower_iEta_patch.end(), 0);
+  std::fill(m_TTree_Tower_iPhi_patch.begin(), m_TTree_Tower_iPhi_patch.end(), 0);
+  std::fill(m_TTree_Tower_E.begin(), m_TTree_Tower_E.end(), 0);
+
+  m_centralTowerBinEta = -9999;
+  m_centralTowerBinPhi = -9999;
+  m_E3x3 = 0;
+  m_E5x5 = 0;
+  m_E7x7 = 0;
+}
 /**
  * This function initializes all of the member variables in this class so that there
  * are no variables that might not be set before e.g. writing them to the output
@@ -1279,21 +1306,6 @@ void eIDMLInterface::initializeVariables()
   m_tr_kaon_loglikelihood = -99;
   m_tr_proton_loglikelihood = -99;
 
-  std::fill(m_TTree_proj_vec.begin(), m_TTree_proj_vec.end(), -9999);
-  std::fill(m_TTree_proj_p_vec.begin(), m_TTree_proj_p_vec.end(), -9999);
-
-  std::fill(m_TTree_Tower_dEta.begin(), m_TTree_Tower_dEta.end(), 0);
-  std::fill(m_TTree_Tower_dPhi.begin(), m_TTree_Tower_dPhi.end(), 0);
-  std::fill(m_TTree_Tower_iEta_patch.begin(), m_TTree_Tower_iEta_patch.end(), 0);
-  std::fill(m_TTree_Tower_iPhi_patch.begin(), m_TTree_Tower_iPhi_patch.end(), 0);
-  std::fill(m_TTree_Tower_E.begin(), m_TTree_Tower_E.end(), 0);
-
-  m_centralTowerBinEta = -9999;
-  m_centralTowerBinPhi = -9999;
-  m_E3x3 = 0;
-  m_E5x5 = 0;
-  m_E7x7 = 0;
-
   m_truthtrackpy = -99;
   m_truthtrackpz = -99;
   m_truthtrackp = -99;
@@ -1322,4 +1334,9 @@ void eIDMLInterface::initializeVariables()
   m_truthjetpy = -99;
   m_truthjetpz = -99;
   m_dR = -99;
+
+  for (std::string _calo_name : _calo_names)
+  {
+    m_CaloDataMap[_calo_name].initializeVariables();
+  }
 }
