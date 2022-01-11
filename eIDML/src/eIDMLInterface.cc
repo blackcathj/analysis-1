@@ -375,18 +375,21 @@ int eIDMLInterface::process_event(PHCompositeNode *topNode)
 
               if (bin_eta > 4095 or bin_phi > 4095 or bin_eta < 0 or bin_phi < 0)
               {
-                cout << __PRETTY_FUNCTION__ << " invalid tower geom " << central_tower_key << ": ";
-                cout << " bin_eta =  " << bin_eta;
-                cout << " bin_phi =  " << bin_phi;
-                cout << " central_tower_eta =  " << central_tower_eta;
-                cout << " central_tower_phi =  " << central_tower_phi;
-                cout << " central_tower_key =  " << central_tower_key;
-                cout << " min_tower_r2 =  " << min_tower_r2;
-                cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
-                cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
-                cout << " minBinPhi =  " << minBinPhi;
-                cout << " maxBinPhi =  " << maxBinPhi;
-                central_tower->identify();
+                if (Verbosity())
+                {
+                  cout << __PRETTY_FUNCTION__ << " invalid tower geom " << central_tower_key << ": ";
+                  cout << " bin_eta =  " << bin_eta;
+                  cout << " bin_phi =  " << bin_phi;
+                  cout << " central_tower_eta =  " << central_tower_eta;
+                  cout << " central_tower_phi =  " << central_tower_phi;
+                  cout << " central_tower_key =  " << central_tower_key;
+                  cout << " min_tower_r2 =  " << min_tower_r2;
+                  cout << " decode_index1 =  " << RawTowerDefs::decode_index1(central_tower_key);
+                  cout << " decode_index2 =  " << RawTowerDefs::decode_index2(central_tower_key);
+                  cout << " minBinPhi =  " << minBinPhi;
+                  cout << " maxBinPhi =  " << maxBinPhi;
+                  central_tower->identify();
+                }
 
                 return Fun4AllReturnCodes::ABORTEVENT;
                 //              continue;
