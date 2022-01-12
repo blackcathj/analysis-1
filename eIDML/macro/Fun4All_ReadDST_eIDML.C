@@ -20,7 +20,7 @@ R__LOAD_LIBRARY(libg4eicdst.so)
 //R__LOAD_LIBRARY(libg4dst.so)
 R__LOAD_LIBRARY(libeidml.so)
 
-int Fun4All_ReadDST_eIDML(const int nEvents = 2,
+int Fun4All_ReadDST_eIDML(const int nEvents = 200,
                           //                          const string &inputFile = "singleElectron.lst"  //
                           const string &inputFile = "singleMuonPlus.prop.7.lst"  //
 )
@@ -65,7 +65,7 @@ int Fun4All_ReadDST_eIDML(const int nEvents = 2,
       ,"LFHCAL_5"
       ,"LFHCAL_6"
     }, inputFile + "_FEMC_" + to_string(nEvents) + ".root");
-    anaTutorial->Verbosity(2);
+//    anaTutorial->Verbosity(2);
     anaTutorial->setEtaRange(1, 4);
     se->registerSubsystem(anaTutorial);
   }
