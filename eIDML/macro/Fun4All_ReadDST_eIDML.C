@@ -39,14 +39,14 @@ int Fun4All_ReadDST_eIDML(const int nEvents = 200,
 //  INPUTREADHITS::filename[0] = inputFile;
   INPUTREADHITS::listfile[0] = inputFile;
 
-//  {
-//    eIDMLInterface *anaTutorial = new eIDMLInterface(
-//        {"BECAL", "HCALIN", "HCALOUT"},
-//        inputFile + "_BECAL_" + to_string(nEvents) + ".root");
-////    anaTutorial->Verbosity(1);
-//    anaTutorial->setEtaRange(-2, 2);
-//    se->registerSubsystem(anaTutorial);
-//  }
+  {
+    eIDMLInterface *anaTutorial = new eIDMLInterface(
+        {"BECAL", "HCALIN", "HCALOUT"},
+        inputFile + "_BECAL_" + to_string(nEvents) + ".root");
+//    anaTutorial->Verbosity(1);
+    anaTutorial->setEtaRange(-2, 2);
+    se->registerSubsystem(anaTutorial);
+  }
 
 //  {
 //    eIDMLInterface *anaTutorial = new eIDMLInterface({"EEMC"}, inputFile + "_EEMC_" + to_string(nEvents) + ".root");
