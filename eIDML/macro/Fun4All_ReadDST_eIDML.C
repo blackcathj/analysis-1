@@ -20,9 +20,9 @@ R__LOAD_LIBRARY(libg4eicdst.so)
 //R__LOAD_LIBRARY(libg4dst.so)
 R__LOAD_LIBRARY(libeidml.so)
 
-int Fun4All_ReadDST_eIDML(const int nEvents = 1000,
+int Fun4All_ReadDST_eIDML(const int nEvents = 2,
                           //                          const string &inputFile = "singleElectron.lst"  //
-                          const string &inputFile = "singlePionNeg.lst"  //
+                          const string &inputFile = "singleMuonPlus.prop.7.lst"  //
 )
 
 {
@@ -48,19 +48,27 @@ int Fun4All_ReadDST_eIDML(const int nEvents = 1000,
 //    se->registerSubsystem(anaTutorial);
 //  }
 
-  {
-    eIDMLInterface *anaTutorial = new eIDMLInterface({"EEMC"}, inputFile + "_EEMC_" + to_string(nEvents) + ".root");
-//    anaTutorial->Verbosity(1);
-    anaTutorial->setEtaRange(-4, 1);
-    se->registerSubsystem(anaTutorial);
-  }
-//
 //  {
-//    eIDMLInterface *anaTutorial = new eIDMLInterface({"FEMC"}, inputFile + "_FEMC_" + to_string(nEvents) + ".root");
+//    eIDMLInterface *anaTutorial = new eIDMLInterface({"EEMC"}, inputFile + "_EEMC_" + to_string(nEvents) + ".root");
 ////    anaTutorial->Verbosity(1);
-//    anaTutorial->setEtaRange(1, 4);
+//    anaTutorial->setEtaRange(-4, 1);
 //    se->registerSubsystem(anaTutorial);
 //  }
+//
+  {
+    eIDMLInterface *anaTutorial = new eIDMLInterface({"FEMC"
+      ,"LFHCAL_0"
+      ,"LFHCAL_1"
+      ,"LFHCAL_2"
+      ,"LFHCAL_3"
+      ,"LFHCAL_4"
+      ,"LFHCAL_5"
+      ,"LFHCAL_6"
+    }, inputFile + "_FEMC_" + to_string(nEvents) + ".root");
+    anaTutorial->Verbosity(2);
+    anaTutorial->setEtaRange(1, 4);
+    se->registerSubsystem(anaTutorial);
+  }
 
   InputManagers();
 
