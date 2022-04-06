@@ -48,13 +48,13 @@ int Fun4All_ReadDST_eIDML(const int nEvents = 200,
     se->registerSubsystem(anaTutorial);
   }
 
-//  {
-//    eIDMLInterface *anaTutorial = new eIDMLInterface({"EEMC"}, inputFile + "_EEMC_" + to_string(nEvents) + ".root");
-////    anaTutorial->Verbosity(1);
-//    anaTutorial->setEtaRange(-4, 1);
-//    se->registerSubsystem(anaTutorial);
-//  }
-//
+  {
+    eIDMLInterface *anaTutorial = new eIDMLInterface({"EEMC"}, inputFile + "_EEMC_" + to_string(nEvents) + ".root");
+//    anaTutorial->Verbosity(1);
+    anaTutorial->setEtaRange(-4, 1);
+    se->registerSubsystem(anaTutorial);
+  }
+
   {
     eIDMLInterface *anaTutorial = new eIDMLInterface({"FEMC"
       ,"LFHCAL_0"
