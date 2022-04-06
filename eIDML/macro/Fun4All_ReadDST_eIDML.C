@@ -22,7 +22,7 @@ R__LOAD_LIBRARY(libeidml.so)
 
 int Fun4All_ReadDST_eIDML(const int nEvents = 200,
                           //                          const string &inputFile = "singleElectron.lst"  //
-                          const string &inputFile = "singleMuonPlus.prop.7.lst"  //
+                          const string &inputFile = "single.prop.7.1.lst"  //
 )
 
 {
