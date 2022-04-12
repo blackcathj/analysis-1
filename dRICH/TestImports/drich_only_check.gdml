@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <define>
+    <matrix coldim="2" name="RINDEX0x5570b9b6a1a0" values="1e-06 1.00029 5.1e-06 1.00029"/>
+    <matrix coldim="2" name="GROUPVEL0x5570c18a3830" values="1e-06 299.706 5.1e-06 299.706"/>
+    <matrix coldim="2" name="EFFICIENCY0x5570c1841a20" values="1e-06 1 4e-06 1 7e-06 1"/>
+    <matrix coldim="2" name="RINDEX0x5570c18b0070" values="1.87855e-06 1.01852 1.96673e-06 1.01856 2.0549e-06 1.01861 2.14308e-06 1.01866 2.23126e-06 1.01871 2.31943e-06 1.01876 2.40761e-06 1.01881 2.49579e-06 1.01887 2.58396e-06 1.01893 2.67214e-06 1.01899 2.76032e-06 1.01905 2.84849e-06 1.01912 2.93667e-06 1.01919 3.02485e-06 1.01926 3.11302e-06 1.01933 3.2012e-06 1.01941 3.28938e-06 1.01948 3.37755e-06 1.01956 3.46573e-06 1.01965 3.55391e-06 1.01973 3.64208e-06 1.01982 3.73026e-06 1.01991 3.81844e-06 1.02001 3.90661e-06 1.0201 3.99479e-06 1.0202 4.08297e-06 1.0203 4.17114e-06 1.02041 4.25932e-06 1.02052 4.3475e-06 1.02063 4.43567e-06 1.02074 4.52385e-06 1.02086 4.61203e-06 1.02098 4.7002e-06 1.02111 4.78838e-06 1.02123 4.87656e-06 1.02136 4.96473e-06 1.0215 5.05291e-06 1.02164 5.14109e-06 1.02178 5.22927e-06 1.02193 5.31744e-06 1.02208 5.40562e-06 1.02223 5.4938e-06 1.02239 5.58197e-06 1.02255 5.67015e-06 1.02271 5.75833e-06 1.02288 5.8465e-06 1.02306 5.93468e-06 1.02324 6.02286e-06 1.02342 6.11103e-06 1.02361 6.19921e-06 1.02381"/>
+    <matrix coldim="2" name="GROUPVEL0x5570c18b0490" values="1.87855e-06 294.089 1.92264e-06 294.084 2.01082e-06 293.993 2.09899e-06 293.965 2.18717e-06 293.936 2.27535e-06 293.907 2.36352e-06 293.878 2.4517e-06 293.768 2.53988e-06 293.733 2.62805e-06 293.699 2.71623e-06 293.664 2.80441e-06 293.537 2.89258e-06 293.497 2.98076e-06 293.456 3.06894e-06 293.416 3.15711e-06 293.272 3.24529e-06 293.333 3.33347e-06 293.183 3.42164e-06 293.024 3.50982e-06 293.088 3.598e-06 292.924 3.68617e-06 292.873 3.77435e-06 292.697 3.86253e-06 292.767 3.9507e-06 292.586 4.03888e-06 292.529 4.12706e-06 292.337 4.21523e-06 292.274 4.30341e-06 292.212 4.39159e-06 292.149 4.47976e-06 291.94 4.56794e-06 291.872 4.65612e-06 291.652 4.74429e-06 291.733 4.83247e-06 291.508 4.92065e-06 291.275 5.00882e-06 291.196 5.097e-06 291.117 5.18518e-06 290.87 5.27336e-06 290.785 5.36153e-06 290.701 5.44971e-06 290.441 5.53789e-06 290.35 5.62606e-06 290.261 5.71424e-06 289.988 5.80242e-06 289.706 5.89059e-06 289.606 5.97877e-06 289.505 6.06695e-06 289.211 6.19921e-06 288.881"/>
+    <matrix coldim="2" name="RAYLEIGH0x5570c18b0b30" values="1.87855e-06 281.107 1.96673e-06 233.984 2.0549e-06 196.334 2.14308e-06 165.962 2.23126e-06 141.242 2.31943e-06 120.958 2.40761e-06 104.188 2.49579e-06 90.226 2.58396e-06 78.527 2.67214e-06 68.663 2.76032e-06 60.301 2.84849e-06 53.174 2.93667e-06 47.07 3.02485e-06 41.816 3.11302e-06 37.277 3.2012e-06 33.336 3.28938e-06 29.903 3.37755e-06 26.9 3.46573e-06 24.265 3.55391e-06 21.946 3.64208e-06 19.896 3.73026e-06 18.08 3.81844e-06 16.468 3.90661e-06 15.03 3.99479e-06 13.746 4.08297e-06 12.596 4.17114e-06 11.564 4.25932e-06 10.637 4.3475e-06 9.799 4.43567e-06 9.043 4.52385e-06 8.358 4.61203e-06 7.738 4.7002e-06 7.172 4.78838e-06 6.659 4.87656e-06 6.191 4.96473e-06 5.762 5.05291e-06 5.37 5.14109e-06 5.011 5.22927e-06 4.681 5.31744e-06 4.379 5.40562e-06 4.1 5.4938e-06 3.844 5.58197e-06 3.606 5.67015e-06 3.386 5.75833e-06 3.184 5.8465e-06 2.996 5.93468e-06 2.822 6.02286e-06 2.66 6.11103e-06 2.51 6.19921e-06 2.37"/>
+    <matrix coldim="2" name="ABSLENGTH0x5570c18b0710" values="1.87855e-06 140 1.96673e-06 141.973 2.0549e-06 143.776 2.14308e-06 145.431 2.23126e-06 146.955 2.31943e-06 148.364 2.40761e-06 149.669 2.49579e-06 150.882 2.58396e-06 152.012 2.67214e-06 153.067 2.76032e-06 154.055 2.84849e-06 154.982 2.93667e-06 155.854 3.02485e-06 156.674 3.11302e-06 157.448 3.2012e-06 158.18 3.28938e-06 158.872 3.37755e-06 159.528 3.46573e-06 160.15 3.55391e-06 160.742 3.64208e-06 147.916 3.73026e-06 128.139 3.81844e-06 111.378 3.90661e-06 97.121 3.99479e-06 84.948 4.08297e-06 74.518 4.17114e-06 65.552 4.25932e-06 57.819 4.3475e-06 51.13 4.43567e-06 45.327 4.52385e-06 40.278 4.61203e-06 35.873 4.7002e-06 32.019 4.78838e-06 28.641 4.87656e-06 25.67 4.96473e-06 23.054 5.05291e-06 20.742 5.14109e-06 18.698 5.22927e-06 16.884 5.31744e-06 15.272 5.40562e-06 13.837 5.4938e-06 12.557 5.58197e-06 11.413 5.67015e-06 10.389 5.75833e-06 9.47 5.8465e-06 8.645 5.93468e-06 7.902 6.02286e-06 7.233 6.11103e-06 6.629 6.19921e-06 6.082"/>
+    <matrix coldim="2" name="RINDEX0x5570c18b3120" values="4.13281e-06 1.5017 4.22099e-06 1.5017 4.30916e-06 1.5017 4.39734e-06 1.5017 4.48552e-06 1.5017 4.57369e-06 1.5017 4.66187e-06 1.5017 4.75005e-06 1.5017 4.83822e-06 1.5017 4.9264e-06 1.5017 5.01458e-06 1.5017 5.10275e-06 1.5017 5.19093e-06 1.5017 5.27911e-06 1.5017 5.36728e-06 1.5017 5.45546e-06 1.5017 5.54364e-06 1.5017 5.63181e-06 1.5017 5.71999e-06 1.5017 5.80817e-06 1.5017 5.89634e-06 1.5017 5.98452e-06 1.5017 6.0727e-06 1.5017 6.16087e-06 1.5017 6.24905e-06 1.5017 6.33723e-06 1.5017 6.4254e-06 1.5017 6.51358e-06 1.5017 6.60176e-06 1.5017 6.68993e-06 1.5017 6.77811e-06 1.5017 6.86629e-06 1.5017 6.95446e-06 1.5017 7.04264e-06 1.5017 7.13082e-06 1.5017 7.21899e-06 1.5017 7.30717e-06 1.5017 7.39535e-06 1.5017 7.48353e-06 1.5017 7.5717e-06 1.5017 7.65988e-06 1.5017 7.74806e-06 1.5017 7.83623e-06 1.5017 7.92441e-06 1.5017 8.01259e-06 1.5017 8.10076e-06 1.5017 8.18894e-06 1.5017 8.27712e-06 1.5017 8.36529e-06 1.5017 8.45347e-06 1.5017"/>
+    <matrix coldim="2" name="GROUPVEL0x5570c18b3540" values="4.13281e-06 199.635 4.1769e-06 199.635 4.26508e-06 199.635 4.35325e-06 199.635 4.44143e-06 199.635 4.52961e-06 199.635 4.61778e-06 199.635 4.70596e-06 199.635 4.79414e-06 199.635 4.88231e-06 199.635 4.97049e-06 199.635 5.05867e-06 199.635 5.14684e-06 199.635 5.23502e-06 199.635 5.3232e-06 199.635 5.41137e-06 199.635 5.49955e-06 199.635 5.58773e-06 199.635 5.6759e-06 199.635 5.76408e-06 199.635 5.85226e-06 199.635 5.94043e-06 199.635 6.02861e-06 199.635 6.11679e-06 199.635 6.20496e-06 199.635 6.29314e-06 199.635 6.38132e-06 199.635 6.46949e-06 199.635 6.55767e-06 199.635 6.64585e-06 199.635 6.73402e-06 199.635 6.8222e-06 199.635 6.91038e-06 199.635 6.99855e-06 199.635 7.08673e-06 199.635 7.17491e-06 199.635 7.26308e-06 199.635 7.35126e-06 199.635 7.43944e-06 199.635 7.52762e-06 199.635 7.61579e-06 199.635 7.70397e-06 199.635 7.79215e-06 199.635 7.88032e-06 199.635 7.9685e-06 199.635 8.05668e-06 199.635 8.14485e-06 199.635 8.23303e-06 199.635 8.32121e-06 199.635 8.45347e-06 199.635"/>
+    <matrix coldim="2" name="ABSLENGTH0x5570c18b37c0" values="4.13281e-06 82.0704 4.22099e-06 36.9138 4.30916e-06 13.3325 4.39734e-06 5.03627 4.48552e-06 2.3393 4.57369e-06 1.36177 4.66187e-06 0.933192 4.75005e-06 0.708268 4.83822e-06 0.573082 4.9264e-06 0.483641 5.01458e-06 0.420282 5.10275e-06 0.373102 5.19093e-06 0.33662 5.27911e-06 0.307572 5.36728e-06 0.283902 5.45546e-06 0.264235 5.54364e-06 0.247641 5.63181e-06 0.233453 5.71999e-06 0.221177 5.80817e-06 0.210456 5.89634e-06 0.201012 5.98452e-06 0.192627 6.0727e-06 0.185134 6.16087e-06 0.178399 6.24905e-06 0.172309 6.33723e-06 0.166779 6.4254e-06 0.166779 6.51358e-06 0.166779 6.60176e-06 0.166779 6.68993e-06 0.166779 6.77811e-06 0.166779 6.86629e-06 0.166779 6.95446e-06 0.166779 7.04264e-06 0.166779 7.13082e-06 0.166779 7.21899e-06 0.166779 7.30717e-06 0.166779 7.39535e-06 0.166779 7.48353e-06 0.166779 7.5717e-06 0.166779 7.65988e-06 0.166779 7.74806e-06 0.166779 7.83623e-06 0.166779 7.92441e-06 0.166779 8.01259e-06 0.166779 8.10076e-06 0.166779 8.18894e-06 0.166779 8.27712e-06 0.166779 8.36529e-06 0.166779 8.45347e-06 0.166779"/>
+    <matrix coldim="2" name="REFLECTIVITY0x5570c1842d00" values="1e-06 0.9 4e-06 0.9 7e-06 0.9"/>
+    <matrix coldim="2" name="RINDEX0x5570c18b5090" values="1.7712e-06 1.00075 1.92389e-06 1.00075 2.10539e-06 1.00075 2.3247e-06 1.00075 2.59502e-06 1.00076 2.93647e-06 1.00076 3.38139e-06 1.00077 3.98521e-06 1.00078 4.85156e-06 1.0008 6.19921e-06 1.00084"/>
+    <matrix coldim="2" name="GROUPVEL0x5570c18b6e20" values="1.7712e-06 299.568 1.84755e-06 299.568 2.01464e-06 299.568 2.21505e-06 299.568 2.45986e-06 299.539 2.76575e-06 299.565 3.15893e-06 299.542 3.6833e-06 299.542 4.41839e-06 299.525 6.19921e-06 299.492"/>
+    <matrix coldim="2" name="ABSLENGTH0x5570c18b7010" values="1.7712e-06 10000 1.92389e-06 10000 2.10539e-06 10000 2.3247e-06 10000 2.59502e-06 10000 2.93647e-06 10000 3.38139e-06 10000 3.98521e-06 10000 4.85156e-06 10000 6.19921e-06 10000"/>
+  </define>
+
+  <materials>
+    <isotope N="14" Z="7" name="N140x5570c189a790">
+      <atom unit="g/mole" value="14.0031"/>
+    </isotope>
+    <isotope N="15" Z="7" name="N150x5570c184a450">
+      <atom unit="g/mole" value="15.0001"/>
+    </isotope>
+    <element name="N0x5570c179bbd0">
+      <fraction n="0.99632" ref="N140x5570c189a790"/>
+      <fraction n="0.00368" ref="N150x5570c184a450"/>
+    </element>
+    <isotope N="16" Z="8" name="O160x5570c1849b90">
+      <atom unit="g/mole" value="15.9949"/>
+    </isotope>
+    <isotope N="17" Z="8" name="O170x5570c1849940">
+      <atom unit="g/mole" value="16.9991"/>
+    </isotope>
+    <isotope N="18" Z="8" name="O180x5570c18495f0">
+      <atom unit="g/mole" value="17.9992"/>
+    </isotope>
+    <element name="O0x5570c1795af0">
+      <fraction n="0.99757" ref="O160x5570c1849b90"/>
+      <fraction n="0.00038" ref="O170x5570c1849940"/>
+      <fraction n="0.00205" ref="O180x5570c18495f0"/>
+    </element>
+    <isotope N="36" Z="18" name="Ar360x5570c1847d10">
+      <atom unit="g/mole" value="35.9675"/>
+    </isotope>
+    <isotope N="38" Z="18" name="Ar380x5570c189ad30">
+      <atom unit="g/mole" value="37.9627"/>
+    </isotope>
+    <isotope N="40" Z="18" name="Ar400x5570c189aae0">
+      <atom unit="g/mole" value="39.9624"/>
+    </isotope>
+    <element name="Ar0x5570c17c0cc0">
+      <fraction n="0.003365" ref="Ar360x5570c1847d10"/>
+      <fraction n="0.000632" ref="Ar380x5570c189ad30"/>
+      <fraction n="0.996003" ref="Ar400x5570c189aae0"/>
+    </element>
+    <material name="AirOptical0x5570c189ae10" state="gas">
+      <property name="RINDEX" ref="RINDEX0x5570b9b6a1a0"/>
+      <property name="GROUPVEL" ref="GROUPVEL0x5570c18a3830"/>
+      <T unit="K" value="293.15"/>
+      <P unit="pascal" value="101325.009296588"/>
+      <MEE unit="eV" value="85.643664635028"/>
+      <D unit="g/cm3" value="0.0012"/>
+      <fraction n="0.754" ref="N0x5570c179bbd0"/>
+      <fraction n="0.234" ref="O0x5570c1795af0"/>
+      <fraction n="0.012" ref="Ar0x5570c17c0cc0"/>
+    </material>
+    <isotope N="28" Z="14" name="Si280x5570c18a0ef0">
+      <atom unit="g/mole" value="27.9769"/>
+    </isotope>
+    <isotope N="29" Z="14" name="Si290x5570c18492d0">
+      <atom unit="g/mole" value="28.9765"/>
+    </isotope>
+    <isotope N="30" Z="14" name="Si300x5570c18a3d50">
+      <atom unit="g/mole" value="29.9738"/>
+    </isotope>
+    <element name="Si0x5570c17b82b0">
+      <fraction n="0.922296077703922" ref="Si280x5570c18a0ef0"/>
+      <fraction n="0.0468319531680468" ref="Si290x5570c18492d0"/>
+      <fraction n="0.0308719691280309" ref="Si300x5570c18a3d50"/>
+    </element>
+    <material name="Aerogel_DRICH0x5570c18a3b50" state="solid">
+      <property name="RINDEX" ref="RINDEX0x5570c18b0070"/>
+      <property name="GROUPVEL" ref="GROUPVEL0x5570c18b0490"/>
+      <property name="RAYLEIGH" ref="RAYLEIGH0x5570c18b0b30"/>
+      <property name="ABSLENGTH" ref="ABSLENGTH0x5570c18b0710"/>
+      <T unit="K" value="293.15"/>
+      <P unit="pascal" value="101325.009296588"/>
+      <MEE unit="eV" value="87.1985349760687"/>
+      <D unit="g/cm3" value="0.11"/>
+      <fraction n="0.718621700879765" ref="N0x5570c179bbd0"/>
+      <fraction n="0.248008960270329" ref="O0x5570c1795af0"/>
+      <fraction n="0.0114369501466276" ref="Ar0x5570c17c0cc0"/>
+      <fraction n="0.0219323887032783" ref="Si0x5570c17b82b0"/>
+    </material>
+    <isotope N="12" Z="6" name="C120x5570c18b05f0">
+      <atom unit="g/mole" value="12"/>
+    </isotope>
+    <isotope N="13" Z="6" name="C130x5570c18a43c0">
+      <atom unit="g/mole" value="13.0034"/>
+    </isotope>
+    <element name="C0x5570c17a9620">
+      <fraction n="0.9893" ref="C120x5570c18b05f0"/>
+      <fraction n="0.0107" ref="C130x5570c18a43c0"/>
+    </element>
+    <isotope N="1" Z="1" name="H10x5570c18b1560">
+      <atom unit="g/mole" value="1.00782503081372"/>
+    </isotope>
+    <isotope N="2" Z="1" name="H20x5570c18b15b0">
+      <atom unit="g/mole" value="2.01410199966617"/>
+    </isotope>
+    <element name="H0x5570c17c3800">
+      <fraction n="0.999885" ref="H10x5570c18b1560"/>
+      <fraction n="0.000115" ref="H20x5570c18b15b0"/>
+    </element>
+    <material name="Acrylic_DRICH0x5570c18b1180" state="solid">
+      <property name="RINDEX" ref="RINDEX0x5570c18b3120"/>
+      <property name="GROUPVEL" ref="GROUPVEL0x5570c18b3540"/>
+      <property name="ABSLENGTH" ref="ABSLENGTH0x5570c18b37c0"/>
+      <T unit="K" value="293.15"/>
+      <P unit="pascal" value="101325.009296588"/>
+      <MEE unit="eV" value="68.6318014128185"/>
+      <D unit="g/cm3" value="1.19"/>
+      <fraction n="0.599422443621622" ref="C0x5570c17a9620"/>
+      <fraction n="0.0804389821917273" ref="H0x5570c17c3800"/>
+      <fraction n="0.32013857418665" ref="O0x5570c1795af0"/>
+    </material>
+    <isotope N="19" Z="9" name="F190x5570c18b36a0">
+      <atom unit="g/mole" value="18.9984"/>
+    </isotope>
+    <element name="F0x5570c179f950">
+      <fraction n="1" ref="F190x5570c18b36a0"/>
+    </element>
+    <material name="C2F6_DRICH0x5570c18b4dc0" state="gas">
+      <property name="RINDEX" ref="RINDEX0x5570c18b5090"/>
+      <property name="GROUPVEL" ref="GROUPVEL0x5570c18b6e20"/>
+      <property name="ABSLENGTH" ref="ABSLENGTH0x5570c18b7010"/>
+      <T unit="K" value="293.15"/>
+      <P unit="pascal" value="101325.009296588"/>
+      <MEE unit="eV" value="107.900332231567"/>
+      <D unit="g/cm3" value="0.005734"/>
+      <fraction n="0.174053233129341" ref="C0x5570c17a9620"/>
+      <fraction n="0.825946766870659" ref="F0x5570c179f950"/>
+    </material>
+    <material Z="13" name="Aluminum0x5570c18b73e0" state="solid">
+      <T unit="K" value="293.15"/>
+      <P unit="pascal" value="101325.009296588"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.699"/>
+      <atom unit="g/mole" value="26.9815"/>
+    </material>
+    <material name="Air0x5570c18b8010" state="gas">
+      <T unit="K" value="293.15"/>
+      <P unit="pascal" value="101325.009296588"/>
+      <MEE unit="eV" value="85.643664635028"/>
+      <D unit="g/cm3" value="0.0012"/>
+      <fraction n="0.754" ref="N0x5570c179bbd0"/>
+      <fraction n="0.234" ref="O0x5570c1795af0"/>
+      <fraction n="0.012" ref="Ar0x5570c17c0cc0"/>
+    </material>
+  </materials>
+
+  <solids>
+    <box lunit="mm" name="DRICH_sensor_sec0_shape_0x5570bff059a00x5570c1847c60" x="25.8" y="25.8" z="0.5"/>
+    <opticalsurface finish="0" model="0" name="SensorSurface_PFRICH0x5570c18408a0" type="1" value="1">
+      <property name="EFFICIENCY" ref="EFFICIENCY0x5570c1841a20"/>
+    </opticalsurface>
+    <cone aunit="deg" deltaphi="360" lunit="mm" name="DRICH_aerogel_shape_0x5570be57e6800x5570c1845940" rmax1="1259.66666666667" rmax2="1286.33333333333" rmin1="89.7260390365933" rmin2="91.9515654031528" startphi="0" z="40"/>
+    <cone aunit="deg" deltaphi="360" lunit="mm" name="DRICH_filter_shape_0x5570be57e7300x5570c1845c80" rmax1="1286.34" rmax2="1286.54" rmin1="91.9521217847444" rmin2="91.9688132324936" startphi="0" z="0.3"/>
+    <tube aunit="deg" deltaphi="59.5" lunit="mm" name="DRICH_mirror_sec0_shape_0x5570be57ec80_left0x5570c1843060" rmax="2200" rmin="0.1" startphi="330.25" z="1360"/>
+    <sphere aunit="deg" deltaphi="80" deltatheta="43.6010007117557" lunit="mm" name="DRICH_mirror_sec0_shape_0x5570be57ec80_right0x5570c1847880" rmax="2735.82054015636" rmin="2733.82054015636" startphi="-40" starttheta="3.61570820687621"/>
+    <intersection name="DRICH_mirror_sec0_shape_0x5570be57ec800x5570bedcae80">
+      <first ref="DRICH_mirror_sec0_shape_0x5570be57ec80_left0x5570c1843060"/>
+      <second ref="DRICH_mirror_sec0_shape_0x5570be57ec80_right0x5570c1847880"/>
+      <position name="DRICH_mirror_sec0_shape_0x5570be57ec800x5570bedcae80_pos" unit="mm" x="1256.45877754087" y="0" z="-2064.82054015636"/>
+      <rotation name="DRICH_mirror_sec0_shape_0x5570be57ec800x5570bedcae80_rot" unit="deg" x="0" y="-27.3611778879724" z="0"/>
+    </intersection>
+    <opticalsurface finish="0" model="1" name="MirrorSurface_DRICH0x5570c1841b80" type="0" value="1">
+      <property name="REFLECTIVITY" ref="REFLECTIVITY0x5570c1842d00"/>
+    </opticalsurface>
+    <box lunit="mm" name="DRICH_sensor_sec1_shape_0x5570bff783600x5570c1848480" x="25.8" y="25.8" z="0.5"/>
+    <tube aunit="deg" deltaphi="59.5" lunit="mm" name="DRICH_mirror_sec1_shape_0x5570c01fb890_left0x5570c18487e0" rmax="2200" rmin="0.1" startphi="330.25" z="1360"/>
+    <sphere aunit="deg" deltaphi="80" deltatheta="43.6010007117557" lunit="mm" name="DRICH_mirror_sec1_shape_0x5570c01fb890_right0x5570c1847e80" rmax="2735.82054015636" rmin="2733.82054015636" startphi="-40" starttheta="3.61570820687621"/>
+    <intersection name="DRICH_mirror_sec1_shape_0x5570c01fb8900x5570c17a6780">
+      <first ref="DRICH_mirror_sec1_shape_0x5570c01fb890_left0x5570c18487e0"/>
+      <second ref="DRICH_mirror_sec1_shape_0x5570c01fb890_right0x5570c1847e80"/>
+      <position name="DRICH_mirror_sec1_shape_0x5570c01fb8900x5570c17a6780_pos" unit="mm" x="1256.45877754087" y="0" z="-2064.82054015636"/>
+      <rotation name="DRICH_mirror_sec1_shape_0x5570c01fb8900x5570c17a6780_rot" unit="deg" x="0" y="-27.3611778879724" z="0"/>
+    </intersection>
+    <box lunit="mm" name="DRICH_sensor_sec3_shape_0x5570c05912e00x5570c1849ae0" x="25.8" y="25.8" z="0.5"/>
+    <tube aunit="deg" deltaphi="59.5" lunit="mm" name="DRICH_mirror_sec2_shape_0x5570c03cbbc0_left0x5570c1848be0" rmax="2200" rmin="0.1" startphi="330.25" z="1360"/>
+    <sphere aunit="deg" deltaphi="80" deltatheta="43.6010007117557" lunit="mm" name="DRICH_mirror_sec2_shape_0x5570c03cbbc0_right0x5570c1848e60" rmax="2735.82054015636" rmin="2733.82054015636" startphi="-40" starttheta="3.61570820687621"/>
+    <intersection name="DRICH_mirror_sec2_shape_0x5570c03cbbc00x5570c17a3b20">
+      <first ref="DRICH_mirror_sec2_shape_0x5570c03cbbc0_left0x5570c1848be0"/>
+      <second ref="DRICH_mirror_sec2_shape_0x5570c03cbbc0_right0x5570c1848e60"/>
+      <position name="DRICH_mirror_sec2_shape_0x5570c03cbbc00x5570c17a3b20_pos" unit="mm" x="1256.45877754087" y="0" z="-2064.82054015636"/>
+      <rotation name="DRICH_mirror_sec2_shape_0x5570c03cbbc00x5570c17a3b20_rot" unit="deg" x="0" y="-27.3611778879724" z="0"/>
+    </intersection>
+    <box lunit="mm" name="DRICH_sensor_sec2_shape_0x5570c03ccdc00x5570c1849220" x="25.8" y="25.8" z="0.5"/>
+    <tube aunit="deg" deltaphi="59.5" lunit="mm" name="DRICH_mirror_sec3_shape_0x5570c05900e0_left0x5570c1849440" rmax="2200" rmin="0.1" startphi="330.25" z="1360"/>
+    <sphere aunit="deg" deltaphi="80" deltatheta="43.6010007117557" lunit="mm" name="DRICH_mirror_sec3_shape_0x5570c05900e0_right0x5570c18496c0" rmax="2735.82054015636" rmin="2733.82054015636" startphi="-40" starttheta="3.61570820687621"/>
+    <intersection name="DRICH_mirror_sec3_shape_0x5570c05900e00x5570c17a7620">
+      <first ref="DRICH_mirror_sec3_shape_0x5570c05900e0_left0x5570c1849440"/>
+      <second ref="DRICH_mirror_sec3_shape_0x5570c05900e0_right0x5570c18496c0"/>
+      <position name="DRICH_mirror_sec3_shape_0x5570c05900e00x5570c17a7620_pos" unit="mm" x="1256.45877754087" y="0" z="-2064.82054015636"/>
+      <rotation name="DRICH_mirror_sec3_shape_0x5570c05900e00x5570c17a7620_rot" unit="deg" x="0" y="-27.3611778879724" z="0"/>
+    </intersection>
+    <tube aunit="deg" deltaphi="59.5" lunit="mm" name="DRICH_mirror_sec4_shape_0x5570c076c610_left0x5570c1849d60" rmax="2200" rmin="0.1" startphi="330.25" z="1360"/>
+    <sphere aunit="deg" deltaphi="80" deltatheta="43.6010007117557" lunit="mm" name="DRICH_mirror_sec4_shape_0x5570c076c610_right0x5570c1849fe0" rmax="2735.82054015636" rmin="2733.82054015636" startphi="-40" starttheta="3.61570820687621"/>
+    <intersection name="DRICH_mirror_sec4_shape_0x5570c076c6100x5570c179de20">
+      <first ref="DRICH_mirror_sec4_shape_0x5570c076c610_left0x5570c1849d60"/>
+      <second ref="DRICH_mirror_sec4_shape_0x5570c076c610_right0x5570c1849fe0"/>
+      <position name="DRICH_mirror_sec4_shape_0x5570c076c6100x5570c179de20_pos" unit="mm" x="1256.45877754087" y="0" z="-2064.82054015636"/>
+      <rotation name="DRICH_mirror_sec4_shape_0x5570c076c6100x5570c179de20_rot" unit="deg" x="0" y="-27.3611778879724" z="0"/>
+    </intersection>
+    <box lunit="mm" name="DRICH_sensor_sec4_shape_0x5570c076d8100x5570c184a3a0" x="25.8" y="25.8" z="0.5"/>
+    <tube aunit="deg" deltaphi="59.5" lunit="mm" name="DRICH_mirror_sec5_shape_0x5570c0930b30_left0x5570c189a5e0" rmax="2200" rmin="0.1" startphi="330.25" z="1360"/>
+    <sphere aunit="deg" deltaphi="80" deltatheta="43.6010007117557" lunit="mm" name="DRICH_mirror_sec5_shape_0x5570c0930b30_right0x5570c189a860" rmax="2735.82054015636" rmin="2733.82054015636" startphi="-40" starttheta="3.61570820687621"/>
+    <intersection name="DRICH_mirror_sec5_shape_0x5570c0930b300x5570c179d350">
+      <first ref="DRICH_mirror_sec5_shape_0x5570c0930b30_left0x5570c189a5e0"/>
+      <second ref="DRICH_mirror_sec5_shape_0x5570c0930b30_right0x5570c189a860"/>
+      <position name="DRICH_mirror_sec5_shape_0x5570c0930b300x5570c179d350_pos" unit="mm" x="1256.45877754087" y="0" z="-2064.82054015636"/>
+      <rotation name="DRICH_mirror_sec5_shape_0x5570c0930b300x5570c179d350_rot" unit="deg" x="0" y="-27.3611778879724" z="0"/>
+    </intersection>
+    <box lunit="mm" name="DRICH_sensor_sec5_shape_0x5570c0931d300x5570c189ac80" x="25.8" y="25.8" z="0.5"/>
+    <cone aunit="deg" deltaphi="360" lunit="mm" name="DRICH_gas_shape_0x5570bff78240_left0x5570c1845600" rmax1="2195" rmax2="2195" rmin1="89.8959272439888" rmin2="165.619461866175" startphi="0" z="1358"/>
+    <cone aunit="deg" deltaphi="360" lunit="mm" name="DRICH_gas_shape_0x5570bff78240_right0x5570c1844fc0" rmax1="1261.66666666667" rmax2="1289" rmin1="87.7260390365933" rmin2="89.8959272439888" startphi="0" z="40"/>
+    <union name="DRICH_gas_shape_0x5570bff782400x5570c140c0d0">
+      <first ref="DRICH_gas_shape_0x5570bff78240_left0x5570c1845600"/>
+      <second ref="DRICH_gas_shape_0x5570bff78240_right0x5570c1844fc0"/>
+      <position name="DRICH_gas_shape_0x5570bff782400x5570c140c0d0_pos" unit="mm" x="0" y="0" z="-699"/>
+    </union>
+    <cone aunit="deg" deltaphi="360" lunit="mm" name="DRICH_shape_0x5570bff78100_left0x5570c18452c0" rmax1="2200" rmax2="2200" rmin1="84.9515654031528" rmin2="160.619461866175" startphi="0" z="1360"/>
+    <cone aunit="deg" deltaphi="360" lunit="mm" name="DRICH_shape_0x5570bff78100_right0x5570c1844cc0" rmax1="1266.66666666667" rmax2="1293.33333333333" rmin1="82.7260390365933" rmin2="84.9515654031528" startphi="0" z="40"/>
+    <union name="DRICH_shape_0x5570bff781000x5570c17a66a0">
+      <first ref="DRICH_shape_0x5570bff78100_left0x5570c18452c0"/>
+      <second ref="DRICH_shape_0x5570bff78100_right0x5570c1844cc0"/>
+      <position name="DRICH_shape_0x5570bff781000x5570c17a66a0_pos" unit="mm" x="0" y="0" z="-700"/>
+    </union>
+    <box lunit="mm" name="world_volume_shape_0x5570bffd25e00x5570c18485c0" x="60000" y="60000" z="200000"/>
+  </solids>
+
+  <structure>
+    <volume name="DRICH_sensor_sec00x5570c179cba0">
+      <materialref ref="AirOptical0x5570c189ae10"/>
+      <solidref ref="DRICH_sensor_sec0_shape_0x5570bff059a00x5570c1847c60"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="SensDet" auxvalue="DRICH"/>
+    </volume>
+    <volume name="DRICH_aerogel0x5570c18b1010">
+      <materialref ref="Aerogel_DRICH0x5570c18a3b50"/>
+      <solidref ref="DRICH_aerogel_shape_0x5570be57e6800x5570c1845940"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH_filter0x5570c18b3ca0">
+      <materialref ref="Acrylic_DRICH0x5570c18b1180"/>
+      <solidref ref="DRICH_filter_shape_0x5570be57e7300x5570c1845c80"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH_mirror_sec00x5570c18b3e90">
+      <materialref ref="Acrylic_DRICH0x5570c18b1180"/>
+      <solidref ref="DRICH_mirror_sec0_shape_0x5570be57ec800x5570bedcae80"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH_sensor_sec10x5570c18b3fc0">
+      <materialref ref="AirOptical0x5570c189ae10"/>
+      <solidref ref="DRICH_sensor_sec1_shape_0x5570bff783600x5570c1848480"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="SensDet" auxvalue="DRICH"/>
+    </volume>
+    <volume name="DRICH_mirror_sec10x5570c18b4120">
+      <materialref ref="Acrylic_DRICH0x5570c18b1180"/>
+      <solidref ref="DRICH_mirror_sec1_shape_0x5570c01fb8900x5570c17a6780"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH_sensor_sec30x5570c18b4280">
+      <materialref ref="AirOptical0x5570c189ae10"/>
+      <solidref ref="DRICH_sensor_sec3_shape_0x5570c05912e00x5570c1849ae0"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="SensDet" auxvalue="DRICH"/>
+    </volume>
+    <volume name="DRICH_mirror_sec20x5570c18b43e0">
+      <materialref ref="Acrylic_DRICH0x5570c18b1180"/>
+      <solidref ref="DRICH_mirror_sec2_shape_0x5570c03cbbc00x5570c17a3b20"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH_sensor_sec20x5570c18b4540">
+      <materialref ref="AirOptical0x5570c189ae10"/>
+      <solidref ref="DRICH_sensor_sec2_shape_0x5570c03ccdc00x5570c1849220"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="SensDet" auxvalue="DRICH"/>
+    </volume>
+    <volume name="DRICH_mirror_sec30x5570c18b46a0">
+      <materialref ref="Acrylic_DRICH0x5570c18b1180"/>
+      <solidref ref="DRICH_mirror_sec3_shape_0x5570c05900e00x5570c17a7620"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH_mirror_sec40x5570c18b4800">
+      <materialref ref="Acrylic_DRICH0x5570c18b1180"/>
+      <solidref ref="DRICH_mirror_sec4_shape_0x5570c076c6100x5570c179de20"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH_sensor_sec40x5570c18b4960">
+      <materialref ref="AirOptical0x5570c189ae10"/>
+      <solidref ref="DRICH_sensor_sec4_shape_0x5570c076d8100x5570c184a3a0"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="SensDet" auxvalue="DRICH"/>
+    </volume>
+    <volume name="DRICH_mirror_sec50x5570c18b4ac0">
+      <materialref ref="Acrylic_DRICH0x5570c18b1180"/>
+      <solidref ref="DRICH_mirror_sec5_shape_0x5570c0930b300x5570c179d350"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH_sensor_sec50x5570c18b4c20">
+      <materialref ref="AirOptical0x5570c189ae10"/>
+      <solidref ref="DRICH_sensor_sec5_shape_0x5570c0931d300x5570c189ac80"/>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="SensDet" auxvalue="DRICH"/>
+    </volume>
+    <volume name="DRICH_gas0x5570c18b7270">
+      <materialref ref="C2F6_DRICH0x5570c18b4dc0"/>
+      <solidref ref="DRICH_gas_shape_0x5570bff782400x5570c140c0d0"/>
+      <physvol copynumber="1256" name="DRICH_sensor_sec0_12560x5570c1930ad0">
+        <volumeref ref="DRICH_sensor_sec00x5570c179cba0"/>
+        <position name="DRICH_sensor_sec0_12560x5570c1930ad0_pos" unit="mm" x="1391.0407548092" y="-262.298919998013" z="-604.375715721125"/>
+        <rotation name="DRICH_sensor_sec0_12560x5570c1930ad0_rot" unit="deg" x="-21.5076405837139" y="32.6803749574233" z="0"/>
+      </physvol>
+      <physvol copynumber="1257" name="DRICH_sensor_sec0_12570x5570c1930c10">
+        <volumeref ref="DRICH_sensor_sec00x5570c179cba0"/>
+        <position name="DRICH_sensor_sec0_12570x5570c1930c10_pos" unit="mm" x="1391.0407548092" y="-286.309993926867" z="-614.345366346362"/>
+        <rotation name="DRICH_sensor_sec0_12570x5570c1930c10_rot" unit="deg" x="-23.5898380164547" y="32.6803749574233" z="0"/>
+      </physvol>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="DRICH0x5570c18b7750">
+      <materialref ref="Aluminum0x5570c18b73e0"/>
+      <solidref ref="DRICH_shape_0x5570bff781000x5570c17a66a0"/>
+      <physvol name="DRICH_gas_00x5570c1b27410">
+        <volumeref ref="DRICH_gas0x5570c18b7270"/>
+      </physvol>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <volume name="world_volume0x5570c18b8a70">
+      <materialref ref="Air0x5570c18b8010"/>
+      <solidref ref="world_volume_shape_0x5570bffd25e00x5570c18485c0"/>
+      <physvol name="DRICH_00x5570c1b274e0">
+        <volumeref ref="DRICH0x5570c18b7750"/>
+        <position name="DRICH_00x5570c1b274e0_pos" unit="mm" x="0" y="0" z="2620"/>
+      </physvol>
+      <auxiliary auxtype="gammaECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="electronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="positronECut" auxunit="MeV" auxvalue="-1"/>
+      <auxiliary auxtype="protonECut" auxunit="MeV" auxvalue="-1"/>
+    </volume>
+    <skinsurface name="_world_DRICH_sensor_de0_3_sensor_optical_surface00x5570c1b27740" surfaceproperty="SensorSurface_PFRICH0x5570c18408a0">
+      <volumeref ref="DRICH_sensor_sec00x5570c179cba0"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_mirror_de0_mirror_optical_surface00x5570c1b28b50" surfaceproperty="MirrorSurface_DRICH0x5570c1841b80">
+      <volumeref ref="DRICH_mirror_sec00x5570c18b3e90"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_sensor_de1_741_sensor_optical_surface10x5570c1b431d0" surfaceproperty="SensorSurface_PFRICH0x5570c18408a0">
+      <volumeref ref="DRICH_sensor_sec10x5570c18b3fc0"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_mirror_de1_mirror_optical_surface10x5570c1bcb380" surfaceproperty="MirrorSurface_DRICH0x5570c1841b80">
+      <volumeref ref="DRICH_mirror_sec10x5570c18b4120"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_sensor_de3_188_sensor_optical_surface30x5570c1bbae40" surfaceproperty="SensorSurface_PFRICH0x5570c18408a0">
+      <volumeref ref="DRICH_sensor_sec30x5570c18b4280"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_mirror_de2_mirror_optical_surface20x5570c1c12f80" surfaceproperty="MirrorSurface_DRICH0x5570c1841b80">
+      <volumeref ref="DRICH_mirror_sec20x5570c18b43e0"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_sensor_de2_0_sensor_optical_surface20x5570c1c13050" surfaceproperty="SensorSurface_PFRICH0x5570c18408a0">
+      <volumeref ref="DRICH_sensor_sec20x5570c18b4540"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_mirror_de3_mirror_optical_surface30x5570c1c54ef0" surfaceproperty="MirrorSurface_DRICH0x5570c1841b80">
+      <volumeref ref="DRICH_mirror_sec30x5570c18b46a0"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_mirror_de4_mirror_optical_surface40x5570c1c9b650" surfaceproperty="MirrorSurface_DRICH0x5570c1841b80">
+      <volumeref ref="DRICH_mirror_sec40x5570c18b4800"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_sensor_de4_0_sensor_optical_surface40x5570c1c9b720" surfaceproperty="SensorSurface_PFRICH0x5570c18408a0">
+      <volumeref ref="DRICH_sensor_sec40x5570c18b4960"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_mirror_de5_mirror_optical_surface50x5570c1cdd5c0" surfaceproperty="MirrorSurface_DRICH0x5570c1841b80">
+      <volumeref ref="DRICH_mirror_sec50x5570c18b4ac0"/>
+    </skinsurface>
+    <skinsurface name="_world_DRICH_sensor_de5_0_sensor_optical_surface50x5570c1cdd690" surfaceproperty="SensorSurface_PFRICH0x5570c18408a0">
+      <volumeref ref="DRICH_sensor_sec50x5570c18b4c20"/>
+    </skinsurface>
+  </structure>
+
+  <userinfo>
+    <auxiliary auxtype="Region" auxvalue="DefaultRegionForTheWorld0x5570c15c9fa0">
+      <auxiliary auxtype="volume" auxvalue="world_volume0x5570c18b8a70"/>
+      <auxiliary auxtype="gamcut" auxunit="mm" auxvalue="0.7"/>
+      <auxiliary auxtype="ecut" auxunit="mm" auxvalue="0.7"/>
+      <auxiliary auxtype="poscut" auxunit="mm" auxvalue="0.7"/>
+      <auxiliary auxtype="pcut" auxunit="mm" auxvalue="0.7"/>
+    </auxiliary>
+  </userinfo>
+
+  <setup name="Default" version="1.0">
+    <world ref="world_volume0x5570c18b8a70"/>
+  </setup>
+
+</gdml>
