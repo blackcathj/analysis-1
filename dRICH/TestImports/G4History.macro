@@ -15,30 +15,8 @@
 /vis/scene/notifyHandlers scene-0
 /vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
 /vis/scene/notifyHandlers scene-0
-/vis/drawTree
-/vis/open ATree
-/vis/sceneHandler/create ATree
-/vis/sceneHandler/attach
-/vis/viewer/create ! ! 600
-/vis/drawVolume world
-/vis/scene/create
-/vis/scene/add/volume world -1 -1 none m 0 0 0 0 0 0
-/vis/sceneHandler/attach
-/vis/viewer/flush
-/vis/viewer/refresh viewer-1
-/vis/viewer/update viewer-1
+/Fun4All/run 1
+/vis/scene/notifyHandlers scene-0
+/vis/scene/list
 /vis/viewer/set/background white
 /vis/viewer/refresh
-/vis/viewer/set/picking true
-/vis/viewer/refresh
-/vis/set/touchable World 0 dRICH_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0
-/vis/set/touchable World 0 dRICH_0 0 DRICH_gas_0 0

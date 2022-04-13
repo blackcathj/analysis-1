@@ -71,7 +71,7 @@ int Fun4All_G4_dRICHImport(const int nEvents = -1 // negative value run a Geant4
 
   PHG4GDMLSubsystem* gdml = new PHG4GDMLSubsystem("dRICH");
 //  gdml->set_string_param("GDMPath", "drich.gdml");
-  gdml->set_string_param("GDMPath", "drich_only_check.gdml");
+  gdml->set_string_param("GDMPath", "drich_only.gdml");
   gdml->set_string_param("TopVolName", "DRICH");
   gdml->set_double_param("place_z", 262.);
   gdml->OverlapCheck(true);
