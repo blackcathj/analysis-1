@@ -1,5 +1,5 @@
 Universe           = vanilla
-initialDir         = /sphenix/user/cdean/private/myModules/photonCounter/macros
+initialDir         = /sphenix/user/cdean/ECCE/analysis/dRICH/dispersion/macros
 Executable         = $(initialDir)/run_production.sh
 PeriodicHold       = (NumJobStarts>=1 && JobStatus == 1)
 request_memory     = 4GB
@@ -8,7 +8,7 @@ job_lease_duration = 3600
 condorDir          = $(initialDir)/condorJob
 revisionNumber     = 0
 nEvents            = 100
-species            = pi-
+species            = mu-
 condorFileName     = $(condorDir)/log/condor-$(species)-$INT(revisionNumber,%03d)-$INT(Process,%05d)
 Output             = $(condorFileName).out
 Error              = $(condorFileName).err

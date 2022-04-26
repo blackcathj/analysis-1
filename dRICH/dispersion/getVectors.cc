@@ -9,6 +9,7 @@
 
 #include <math.h>
 #include <float.h>
+#include <numeric>
 
 #include <g4main/PHG4HitContainer.h>
 //____________________________________________________________________________..
@@ -110,17 +111,14 @@ int getVectors::process_event(PHCompositeNode *topNode)
          }
       }
   
-      double sum = 0;
-      unsigned int nHits = delta_phi.size();
-      for (unsigned int i = 0; i < nHits; ++i) 
-      {
-        sum += pow(delta_phi[i], 2);
-      }
-  
-      m_delta_phi = sqrt(sum / nHits);
-      delta_phi.clear();
+      double sum = std::accumulate(delta_phi.begin(), delta_phi.end(), 0.0);
+      double mean = sum / delta_phi.size();
+      double square_sum = std::inner_product(delta_phi.begin(), delta_phi.end(), delta_phi.begin(), 0.0);
+      m_delta_phi = sqrt(square_sum / delta_phi.size());
+      m_std_dev = sqrt(square_sum / delta_phi.size() - mean * mean);
   
       m_tree->Fill();
+      delta_phi.clear();
     }
   }
 
@@ -161,4 +159,5 @@ void getVectors::initializeBranches()
   m_tree->Branch("particle_p", &m_particle_p, "particle_p/F");
   m_tree->Branch("particle_phi", &m_particle_phi, "particle_phi/F");
   m_tree->Branch("delta_phi", &m_delta_phi, "delta_phi/F");
+  m_tree->Branch("std_dev", &m_std_dev, "std_dev/F");
 }

@@ -73,8 +73,8 @@ private:
   float m_particle_eta = -99;
   float m_particle_phi = -99;
 
-  float m_delta_theta = -99;
   float m_delta_phi = -99;
+  float m_std_dev = -99;
 };
 
 #endif // GETVECTORS_H
