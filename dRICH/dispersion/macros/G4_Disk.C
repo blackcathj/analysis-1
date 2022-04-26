@@ -35,7 +35,7 @@ double etaToR(double eta, double z)
 
 void DiskInit()
 {
-  BlackHoleGeometry::max_radius = max(BlackHoleGeometry::max_radius, etaToR(dRICH_eta_coverage.first, dRICH_z));
+  BlackHoleGeometry::max_radius = max(BlackHoleGeometry::max_radius, etaToR(dRICH_eta_coverage.first, dRICH_z + 0.5*dRICH_width));
   BlackHoleGeometry::min_z = min(BlackHoleGeometry::min_z, -1.);
   BlackHoleGeometry::max_z = max(BlackHoleGeometry::max_z, dRICH_z + 0.5*dRICH_width); 
 }
@@ -45,8 +45,8 @@ double Disk(PHG4Reco *g4Reco, double max_radius)
   PHG4CylinderSubsystem *cyl = nullptr;
 
   double diskWidth = dRICH_width/nLayers;
-  pair<double, double> dRICH_r_coverage(etaToR(dRICH_eta_coverage.second, dRICH_z),
-                                        etaToR(dRICH_eta_coverage.first, dRICH_z));
+  pair<double, double> dRICH_r_coverage(etaToR(dRICH_eta_coverage.second, dRICH_z + 0.5*dRICH_width),
+                                        etaToR(dRICH_eta_coverage.first, dRICH_z + 0.5*dRICH_width));
 
   for (int i = 0; i < nLayers; ++i)
   {
